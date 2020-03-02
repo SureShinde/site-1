@@ -1,0 +1,22 @@
+<?php
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_FbPixel
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2018 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+$helper = $this->helper('Webkul\FbPixel\Helper\Data');
+$pixel_id = $helper->getPixelId();
+$pixelAddToCartData = $helper->addTocartData();
+if ($pixel_id && $helper->getConfigValue('addtocart') && $pixelAddToCartData && is_array($pixelAddToCartData)):
+  $helper->unSetAddToCartData();
+?>
+    <script>
+    var addtocartData = <?php echo json_encode($pixelAddToCartData); ?>;
+    console.log(addtocartData);
+        fbq('track', 'AddToCart', addtocartData);
+    </script>
+<?php endif;

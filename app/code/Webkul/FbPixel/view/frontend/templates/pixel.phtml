@@ -31,15 +31,19 @@ if ($pixel_id):
     </script>
     <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<?php echo $pixel_id; ?>&ev=PageView&noscript=1"/></noscript>
 
-    <?php if ($helper->getConfigValue('addtocart')): ?>
-        <script>
+    <?php
+		//if ($helper->getConfigValue('addtocart')):
+		?>
+        <!-- <script>
             require(['jquery'], function ($) {
                 $('body').on('click','.tocart',function() {
                     fbq('track', 'AddToCart');
                 });
             });
-        </script>
-    <?php endif; ?>
+        </script> -->
+    <?php
+		//endif;
+	 ?>
     <?php if ($helper->getConfigValue('addtowishlist')): ?>
         <script>
             require(['jquery'], function ($) {

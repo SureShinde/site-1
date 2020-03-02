@@ -30,7 +30,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $_checkoutSession;
 
     protected $_customerSession;
-    
+
     protected $_storeManager;
 
     /**
@@ -51,7 +51,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_customerSession     = $customerSession;
         $this->_order               = $order;
         $this->_checkoutSession     = $checkoutSession;
-        $this->_storeManager        = $storeManager; 
+        $this->_storeManager        = $storeManager;
         parent::__construct($context);
     }
 
@@ -123,4 +123,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getStore() {
         return $this->_storeManager->getStore();
     }
+
+    public function addTocartData() {
+      return $this->_checkoutSession->getPixelAddToCartData();
+    }
+
+    public function unSetAddToCartData() {
+      return $this->_checkoutSession->unsPixelAddToCartData();
+    }
+
+    // return currency currency code
+    public function getCurrentCurrencyCode()
+    {
+        return $this->_storeManager->getStore()->getCurrentCurrencyCode();
+    }
+
 }

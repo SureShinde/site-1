@@ -11,7 +11,7 @@
 $helper = $this->helper('Webkul\FbPixel\Helper\Data');
 $pixel_id = $helper->getPixelId();
 
-if ($pixel_id & $helper->getConfigValue('initiatecheckout')): 
+if ($pixel_id & $helper->getConfigValue('initiatecheckout')):
     $qoute = $block->getQuote();
     $total = $qoute->getBaseGrandTotal();
     $items = $qoute->getAllVisibleItems();
