@@ -1,0 +1,244 @@
+<?php
+/**
+ * @category  Apptrian
+ * @package   Apptrian_PinterestPixel
+ * @author    Apptrian
+ * @copyright Copyright (c) Apptrian (http://www.apptrian.com)
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License
+ */
+
+/**
+ * Pinterest Pixel Code block
+ *
+ * @var $block \Apptrian\PinterestPixel\Block\Code
+ */
+
+$data   = $block->getPinterestPixelData();
+$id     = $data['id'];
+$action = $data['full_action_name'];
+
+?>
+<!-- Pinterest Pixel Code -->
+<script>
+!function(e){if(!window.pintrk){window.pintrk=function(){
+window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+n=window.pintrk;n.queue=[],n.version="3.0";var
+t=document.createElement("script");t.async=!0,t.src=e;var
+r=document.getElementsByTagName("script")[0];
+r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
+
+<?php
+$customerData = $block->getCustomerData();
+if (empty($customerData)): ?>
+    pintrk('load', '<?php echo $block->escapeHtml($id) ?>', {np: 'apptrian'});
+<?php else: ?>
+    pintrk('load', '<?php echo $block->escapeHtml($id) ?>', {np: 'apptrian',
+        <?php
+            $i         = 1;
+            $itemCount = count($customerData);
+            foreach($customerData as $param => $value): ?>
+            <?php /* @noEscape */ echo $param . ": '" . $value . "'";
+                if ($i == $itemCount) {
+                    /* @noEscape */ echo "\n";
+                } else {
+                    /* @noEscape */ echo ",\n";
+                }
+                
+                $i++;
+            ?>
+        <?php endforeach; ?>
+    });
+<?php endif; ?>
+
+pintrk('page', {np: 'apptrian'});
+
+</script>
+<noscript><img height="1" width="1" style="display:none" alt="Pinterest Pixel" 
+src="https://ct.pinterest.com/v3/?tid=<?php
+    echo $block->escapeHtml($id) ?>&noscript=1"
+/></noscript>
+
+<script>
+require([
+    'jquery'
+], function ($) {
+    $(function () {
+
+<?php if ($action == 'catalog_product_view') : ?>
+<?php
+$productData = $block->getProductData();
+if ($productData !== null) : ?>
+<?php
+    $productString = "{np: 'apptrian', \n";
+    $contentsData  = $productData['line_items'];
+    $productItems  = '';
+    $i             = 1;
+    $itemCount     = count($contentsData);
+    
+    foreach ($contentsData as $item) {
+        $productItems .= "{\n";
+        
+        foreach ($item as $param => $value) {
+            
+            switch ($param) {
+                case 'product_quantity':
+                    $productItems .= $param . ": " . $value . ",\n";
+                    break;
+                case 'product_price':
+                    $productItems .= $param . ": " . $value . "\n";
+                    break;
+                default:
+                    $productItems .= $param . ": '" . $value . "',\n";
+            }
+        }
+        
+        if ($i == $itemCount) {
+            $productItems .= "}\n";
+        } else {
+            $productItems .= "},\n";
+        }
+        
+        $i++;
+    }
+
+    $productString .= "value: " . $block->escapeHtml($productData['value']) . ",\n";
+    $productString .= "currency: '" . $block->escapeHtml($productData['currency']) . "',\n";
+    $productString .= "line_items: [\n";
+    $productString .= $productItems;
+    $productString .= "]\n}";
+?>
+var productData = <?php /* @noEscape */ echo $productString; ?>;
+
+pintrk('track', 'pagevisit', productData);
+
+//Add Pixel Events to the button's click handler
+$('#product-addtocart-button').click(function() {
+    pintrk('track', 'addtocart', productData);
+});
+
+//Add Pixel Events to the button's click handler
+$('.action.towishlist').click(function() {
+    pintrk('track', 'addtowishlist', productData);
+});
+
+<?php endif; ?>
+<?php elseif ($action == 'catalog_category_view') : ?>
+<?php
+$categoryData = $block->getCategoryData();
+if ($categoryData !== null) : ?>
+<?php
+    $categoryString = "{np: 'apptrian', \n";
+    $contentsData   = $categoryData['line_items'];
+    $categoryItems  = '';
+    $i              = 1;
+    $itemCount      = count($contentsData);
+    
+    foreach ($contentsData as $item) {
+        $categoryItems .= "{\n";
+        
+        foreach ($item as $param => $value) {
+            
+            switch ($param) {
+                case 'product_category':
+                    // Currently there is only product_category property but for
+                    // the future leave this intact then just remove this case.
+                    $categoryItems .= $param . ": '" . $value . "'\n";
+                    break;
+                case 'product_quantity':
+                    $categoryItems .= $param . ": " . $value . ",\n";
+                    break;
+                case 'product_price':
+                    $categoryItems .= $param . ": " . $value . "\n";
+                    break;
+                default:
+                    $categoryItems .= $param . ": '" . $value . "',\n";
+            }
+        }
+        
+        if ($i == $itemCount) {
+            $categoryItems .= "}\n";
+        } else {
+            $categoryItems .= "},\n";
+        }
+        
+        $i++;
+    }
+    
+    $categoryString .= "line_items: [\n";
+    $categoryString .= $categoryItems;
+    $categoryString .= "]\n}";
+?>
+var categoryData = <?php /* @noEscape */ echo $categoryString; ?>;
+
+pintrk('track', 'viewcategory', categoryData);
+
+<?php endif; ?>
+<?php elseif ($action == 'catalogsearch_result_index'
+    || $action == 'catalogsearch_advanced_result') : ?>
+pintrk('track', 'search', {np: 'apptrian'});
+<?php elseif ($action == 'customer_account_create') : ?>
+pintrk('track', 'signup', {np: 'apptrian'});
+<?php elseif ($action == 'checkout_index_index'
+    || $action == 'onepagecheckout_index_index'
+    || $action == 'onestepcheckout_index_index'
+    || $action == 'opc_index_index') : ?>
+pintrk('track', 'initiatecheckout', {np: 'apptrian'});
+<?php elseif ($action == 'checkout_onepage_success'
+    || $action == 'onepagecheckout_index_success') : ?>
+<?php
+$orderData = $block->getOrderData();
+if ($orderData !== null) :?>
+pintrk('track', 'checkout', {np: 'apptrian',
+    <?php
+    
+        $contentsData = $orderData['line_items'];
+        $orderItems   = '';
+        $i            = 1;
+        $itemCount    = count($contentsData);
+        
+        foreach ($contentsData as $item) {
+            $orderItems .= "{\n";
+            
+            foreach ($item as $param => $value) {
+                
+                switch ($param) {
+                    case 'product_quantity':
+                        $orderItems .= $param . ": " . $value . ",\n";
+                        break;
+                    case 'product_price':
+                        $orderItems .= $param . ": " . $value . "\n";
+                        break;
+                    default:
+                       $orderItems .= $param . ": '" . $value . "',\n";
+                }
+            }
+            
+            if ($i == $itemCount) {
+                $orderItems .= "}\n";
+            } else {
+                $orderItems .= "},\n";
+            }
+            
+            $i++;
+        }
+    ?>
+    
+    value: <?php echo $block->escapeHtml($orderData['value']) ?>,
+    order_quantity: <?php echo $block->escapeHtml($orderData['order_quantity']) ?>,
+    currency: '<?php echo $block->escapeHtml($orderData['currency']) ?>',
+    order_id: '<?php echo $block->escapeHtml($orderData['order_id']) ?>',
+    line_items: [
+        <?php /* @noEscape */ echo $orderItems ?>
+    ]
+});
+<?php endif; ?>
+<?php
+// cms_index_index or cms_page_view
+// or any other page do not add anything.
+// (page event is already added at the top.)
+else : ?>
+<?php endif; ?>
+    });
+});
+</script>
+<!-- End Pinterest Pixel Code -->

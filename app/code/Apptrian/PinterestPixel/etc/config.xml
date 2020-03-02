@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category  Apptrian
+ * @package   Apptrian_PinterestPixel
+ * @author    Apptrian
+ * @copyright Copyright (c) Apptrian (http://www.apptrian.com)
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <apptrian_pinterestpixel>
+            <general>
+                <enabled>1</enabled>
+                <pixel_id>123456789012345</pixel_id>
+                <mapping_product>product_category=product_category|product_brand=brand</mapping_product>
+                <mapping_order>product_category=product_category|product_brand=brand</mapping_order>
+            </general>
+        </apptrian_pinterestpixel>
+    </default>
+</config>
