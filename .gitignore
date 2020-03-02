@@ -15,6 +15,12 @@
 !app/bootstrap.php
 !app/design/frontend/Infortis/**/*
 !app/etc/config.php
+# 2020-03-02 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# The file has been modified by someone at 2019-02-27:
+# 	if (isset($GLOBALS['phrase_as_string'])) {
+#		return (string)new \Magento\Framework\Phrase($text, $argc);
+#	}
+!app/functions.php
 /update/
 # 2020-03-01 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
 # Magento 2.2.1 bug on the frontend checkout page:
