@@ -9,9 +9,9 @@
 !/composer.json
 !/README.md
 !app/code/**/*
-# 2019-10-07 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
-# «Function mcrypt_create_iv() is deprecated in lib/internal/Customweb/Core/Util/Rand.php on line 86»
-# in Magento 2.3.2: https://github.com/tradefurniturecompany/core/issues/10
+# 2020-03-02 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# It enabled `display_errors`: https://www.php.net/manual/errorfunc.configuration.php#ini.display-errors
+# @todo: It should be refactored to php.ini.
 !app/bootstrap.php
 !app/design/frontend/Infortis/**/*
 !app/etc/config.php
