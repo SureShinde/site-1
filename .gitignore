@@ -16,11 +16,10 @@
 !app/design/frontend/Infortis/**/*
 !app/etc/config.php
 # 2020-03-02 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
-# 1) The file has been modified by someone at 2019-02-27:
+# The file has been modified by someone at 2019-02-27:
 # 	if (isset($GLOBALS['phrase_as_string'])) {
 #		return (string)new \Magento\Framework\Phrase($text, $argc);
 #	}
-# 2) A patch for `FishPig_WordPress` has been added by someone at 2020-01-28.
 !app/functions.php
 /update/
 !us/.htaccess
