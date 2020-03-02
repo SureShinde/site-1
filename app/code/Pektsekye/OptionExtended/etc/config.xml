@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config>
+	  <default>
+		  <checkout>
+			  <cart>
+				  <custom_option_images>1</custom_option_images>		
+			  </cart>			  
+		  </checkout>	  
+	  </default>     
+</config>

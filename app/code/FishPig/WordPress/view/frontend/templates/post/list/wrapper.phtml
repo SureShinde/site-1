@@ -1,0 +1,21 @@
+<style>.page-main>.page-title-wrapper .page-title{font-size:36px;}.breadcrumbsblog{margin:15px 0 55px;text-align:center;}.breadcrumbsblog .items {font-size:1.2rem;color:#a3a3a3;margin:0;padding:0;list-style: none none;text-transform: uppercase;}.breadcrumbsblog .item{font-weight:normal;margin-right:1em;margin-left: 1em;} .breadcrumbsblog .item:not(:last-child){display:inline-block;text-decoration:none;}.breadcrumbsblog .items>li {display: inline-block;vertical-align: top;border:1px solid lightgrey;padding:1em}
+    </style>
+<?php
+/**
+ * @category    Fishpig
+ * @package     Fishpig_Wordpress
+ * @license     http://fishpig.co.uk/license.txt
+ * @author      Ben Tideswell <help@fishpig.co.uk>
+ */
+?>
+<?php if ($text = $this->getIntroText()): ?>
+	<p class="post-list-description" style="font-size:18px;padding:25px;max-width:721px;margin:0px auto;letter-spacing:0.1em;"><?php echo $text ?></p>
+<?php endif; ?>
+<!--Blog Menu-->
+<div class="breadcrumbsblog"><ul class="items"><li class="item"><a href="/blog/category/travel">Travel</a></li><li class="item"><a href="/blog/category/photo-tips">Photo Tips</a></li><li class="item"><a href="/blog/category/inspired-interiors">Inspired Interiors</a></li><li class="item"><a href="/blog/category/community">Community</a></li><li class="item"><a href="/blog/category/community">Inkifi</a></li></ul></div>
+<!--End Blog Menu-->
+<?php if ($postList = trim($this->getPostListHtml())): ?>
+	<?php echo $postList ?>
+<?php else: ?>
+	<p class="note-msg"><?php echo __('There are no posts matching your selection.') ?>
+<?php endif; ?>

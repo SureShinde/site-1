@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head>        
+        <css src="Pektsekye_OptionExtended::optiontemplate/option/grid.css"/>                                      
+    </head>  
+    <referenceContainer name="content">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Option" name="optiontemplate_option"/>
+    </referenceContainer>
+</page>

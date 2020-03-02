@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config>
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Catalog::catalog">
+                    <resource id="Magento_Catalog::catalog_inventory">
+                        <resource id="Pektsekye_OptionExtended::templates" title="Option Templates" sortOrder="15" /> 
+                        <resource id="Pektsekye_OptionExtended::pickerimage" title="Picker Images" sortOrder="16" />                                                
+                    </resource>
+                </resource>   
+                <resource id="Magento_Backend::system">
+                    <resource id="Magento_Backend::convert">
+                        <resource id="Pektsekye_OptionExtended::export" title="Dependent Product Options" sortOrder="40" />
+                    </resource>
+                </resource>                                       
+            </resource>            
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,15 @@
+<?php
+// @codingStandardsIgnoreFile
+?>
+<?php if ($this->isEnabled()) : ?>
+    <?php $dataLayerObject = $this->getDataLayerAsJson(); ?>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            <?php if ($dataLayerObject != '[[]]') : ?>
+            var dlObjects = <?php echo $dataLayerObject; ?>;
+            for (var i in dlObjects) {
+                window.dataLayer.push(dlObjects[i]);
+            }
+            <?php endif; ?>
+        </script>
+<?php endif; ?>

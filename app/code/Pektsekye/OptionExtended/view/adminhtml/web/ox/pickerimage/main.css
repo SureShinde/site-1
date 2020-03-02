@@ -1,0 +1,15 @@
+.import-export-tax-rates .import-tax-rates .fieldset{
+white-space: nowrap;
+}
+
+.ox-table {width:575px;}
+
+.ox-table th {text-align:left; padding-bottom:10px;}
+.ox-table td {height: 50px; vertical-align: middle;}
+
+.ox-image {vertical-align: top;}
+.delete-button {margin-left: 10px; margin-top: 4px;}
+.uploader {width:235px;}
+.uploader .browse-button {margin-top: 8px;}
+.uploader .file-row .file-info {word-wrap: break-word;} 
+.uploader .file-row .progressbar-container .upload-progress {background-color: #5cb85c;}

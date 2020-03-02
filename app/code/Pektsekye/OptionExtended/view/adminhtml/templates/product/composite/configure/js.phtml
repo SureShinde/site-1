@@ -1,0 +1,40 @@
+<input type="hidden" name="ox_html_loaded" id="ox_html_loaded" value=""/>
+<script>
+require(["jquery",
+         "jquery/ui",
+         "optionExtended"
+], function($){
+
+  var container = $("#product_composite_configure_form_fields");
+  var optionExtended = container.data("pektsekyeOptionExtended");
+  
+  var config = <?php echo $this->getConfig() ?>;
+  
+  if (optionExtended){
+    optionExtended.reloadElements(config);
+  } else {
+  
+    container.optionExtended({
+        spacer     : "<?php echo $this->getViewFileUrl('Pektsekye_OptionExtended::images/spacer.gif') ?>",	
+        imageTitle : "<?php echo $this->escapeJsQuote(__('Click to Enlarge')) ?>",
+        infoIcon   : "<?php echo $this->getViewFileUrl('Pektsekye_OptionExtended::images/info_icon.gif') ?>",
+        checkIcon  : "<?php echo $this->getViewFileUrl('Pektsekye_OptionExtended::images/check_icon.png') ?>",
+                
+        imageDirUrl       : "<?php echo $this->getProductBaseMediaUrl() ?>",
+        thumbnailDirUrl   : "<?php echo $this->getThumbnailDirUrl() ?>",
+        pickerImageDirUrl : "<?php echo $this->getPickerImageDirUrl() ?>", 
+        hoverImageDirUrl  : "<?php echo $this->getHoverImageDirUrl() ?>",              
+        placeholderUrl    : "<?php echo $this->getPlaceholderUrl() ?>",	
+        
+        inPreconfigured   : <?php echo $this->getInPreconfigured() ?>,
+        isEditOrderPage   : true, 
+        
+        config : config
+    });
+  
+    $("#product_composite_configure_form").data("mageValidation").validate.settings.ignore += ',:hidden';//don't validate hidden options
+  }
+  
+  $('#ox_html_loaded').val(1);
+});
+</script>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head> 
+        <css src="Pektsekye_OptionExtended::ox/export/main.css"/>                                          
+    </head>
+    <referenceContainer name="content">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Ox\Export" name="optionextended.export"  template="ox/export.phtml"/>
+    </referenceContainer>
+</page>

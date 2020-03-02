@@ -1,0 +1,49 @@
+<?php /** @var $this \Magento\Catalog\Block\Adminhtml\Product\Edit\Tab\Options\Type\File */ ?>
+<script id="custom-option-file-type-template" type="text/x-magento-tmpl">
+    <div id="product_option_<%- data.option_id %>_type_<%- data.group %>" class="fieldset">
+        <table class="data-table" cellspacing="0">
+            <thead>
+            <tr>
+                <th class=""><?php echo __('Id') ?></th>             
+                <?php if ($this->getCanReadPrice() !== false) : ?>
+                <th><?php echo __('Price'); ?></th>
+                <th><?php echo __('Price Type'); ?></th>
+                <?php endif; ?>
+                <th><?php echo __('SKU'); ?></th>
+                <th><?php echo __('Allowed File Extensions'); ?></th>
+                <th><?php echo __('Maximum Image Size'); ?></th>
+            </tr>
+            </thead>
+            <tr>
+                <td class="ox-opt-id">
+                    <input data-form-part="product_form" id="ox_row_id_option_<%- data.option_id %>" name="product[options][<%- data.option_id %>][row_id]" type="hidden" value="<%- data.row_id %>">
+                    <%- data.row_id %>
+                </td>                
+                <?php if ($this->getCanReadPrice() !== false) : ?>
+                <td class="opt-price">
+                    <input data-form-part="product_form" name="product[options][<%- data.option_id %>][price]" data-store-label="<%- data.price %>"
+                           class="input-text validate-zero-or-greater" type="text" value="<%- data.price %>"
+                        <?php if ($this->getCanEditPrice() === false) : ?>
+                           disabled="disabled"
+                        <?php endif; ?>>
+                </td>
+                <td class="opt-price-type"><?php echo $this->getPriceTypeSelectHtml('data-form-part="product_form"') ?><%= data.checkboxScopePrice %></td>
+                <?php else : ?>
+                <input data-form-part="product_form" name="product[options][<%- data.option_id %>][price]" type="hidden">
+                <input data-form-part="product_form" id="product_option_<%- data.option_id %>_price_type" name="product[options][<%- data.option_id %>][price_type]" type="hidden">
+                <?php endif; ?>
+                <td>
+                    <input data-form-part="product_form" name="product[options][<%- data.option_id %>][sku]" class="input-text" type="text" value="<%- data.sku %>">
+                </td>
+                <td>
+                    <input data-form-part="product_form" name="product[options][<%- data.option_id %>][file_extension]" class="input-text" type="text" value="<%- data.file_extension %>">
+                </td>
+                <td class="col-file"><?php echo __('%1 x %2 px.',
+                    '<input data-form-part="product_form" class="input-text" type="text" name="product[options][<%- data.option_id %>][image_size_x]" value="<%- data.image_size_x %>">',
+                    '<input data-form-part="product_form" class="input-text" type="text" name="product[options][<%- data.option_id %>][image_size_y]" value="<%- data.image_size_y %>">') ?>
+                    <br/><?php echo __('Please leave blank if it is not an image.') ?>
+                </td>
+            </tr>
+        </table>
+    </div>
+</script>

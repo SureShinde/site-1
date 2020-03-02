@@ -1,0 +1,40 @@
+
+<img class="ox-image" id="ox_image_placeholder" src="<?php echo $this->getImage() ?>" <?php echo $this->getImage() == '' ? 'style="display:none;"' : ''; ?> width="40"/>
+<button onclick="optionExtended.deleteImage();" <?php echo $this->getImage() == '' ? 'style="display:none;"' : ''; ?> id="ox_delete_image_button" title="<?php echo __('Delete Image') ?>" type="button" class="action- scalable delete delete-select-row icon-btn delete-button"><span>X</span></button>
+<input type="hidden" name="delete_image" id="ox_delete_image" value="">            
+<input type="hidden" name="image_file_name" id="ox_image_input" value="">
+<div id="ox_image_uploader" class="uploader" <?php echo $this->getImage() != '' ? 'style="display:none;"' : ''; ?>>
+    <div id="ox_image_browse_button" class="fileinput-button form-buttons button browse-button">
+        <span><?php echo __('Browse Files...') ?></span>
+        <input id="ox_image_file" type="file" name="image" data-url="<?php echo $this->getUploadUrl(); ?>"/>
+    </div>
+    <div class="clear"></div>
+    <div class="no-display" id="ox_image_uploader-template">
+        <div id="{{id}}" class="file-row">
+            <span class="file-info">{{name}} ({{size}})</span>
+            <div class="progressbar-container">
+                <div class="progressbar upload-progress" style="width: 0%;">&nbsp;</div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>
+            
+            
+<script type="text/javascript">
+//<![CDATA[
+require([
+    'jquery',
+    'mage/template',
+    'jquery/ui',
+    'jquery/file-uploader',
+    'mage/translate'
+], function ($) {
+  optionExtended.maxFileSize = <?php echo (int) $this->getFileSizeService()->getMaxFileSize() ?>;
+  optionExtended.maxWidth    = <?php echo (int) \Magento\Framework\File\Uploader::MAX_IMAGE_WIDTH ?>;
+  optionExtended.maxHeight   = <?php echo (int) \Magento\Framework\File\Uploader::MAX_IMAGE_HEIGHT ?>;  
+
+  optionExtended.loadUploader();
+});
+//]]> 
+</script>

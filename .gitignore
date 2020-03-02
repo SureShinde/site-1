@@ -1,0 +1,81 @@
+# 2020-03-01 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# http://stackoverflow.com/questions/987142
+# http://stackoverflow.com/questions/9162919
+# http://stackoverflow.com/questions/8024924#comment15884195_8025106
+*
+!*/
+!/.editorconfig
+!/.gitignore
+!/composer.json
+!/README.md
+!app/code/**/*
+# 2019-10-07 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «Function mcrypt_create_iv() is deprecated in lib/internal/Customweb/Core/Util/Rand.php on line 86»
+# in Magento 2.3.2: https://github.com/tradefurniturecompany/core/issues/10
+!app/bootstrap.php
+!app/design/frontend/Infortis/**/*
+!app/etc/config.php
+/update/
+# 2020-03-01 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# Magento 2.2.1 bug on the frontend checkout page:
+# «session_destroy(): Session object destruction failed in Magento/Framework/Session/SessionManager.php on line 513»
+# https://mage2.pro/t/4661
+!vendor/magento/framework/Session/SessionManager.php
+# 2020-03-01 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# The file has been modified by someone at 2017-12-29.
+!vendor/magento/magento-composer-installer/src/MagentoHackathon/Composer/Magento/DeployManager.php
+# 2020-03-01 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# The file has been modified by someone at 2019-01-29:
+# 	«Review & Payments» → «2. Review & Payments»
+# 	«Shipping» → «1. Shipping»
+!vendor/magento/module-checkout/i18n/en_US.csv
+# 2020-03-01 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# The file has been modified by someone at 2019-02-07:
+# 	«Sign Up for Newsletter» → «Join our mailing list. Photo tips, exclusive offers and more.»
+!vendor/magento/module-customer/view/frontend/templates/form/register.phtml
+# 2019-01-05 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «Improve MediaClip module for Magento 2: add USPS shipping tracking URLs to emails»
+# https://www.upwork.com/ab/f/contracts/21337553
+!vendor/magento/module-sales/view/frontend/templates/email/shipment/track.phtml
+# 2019-03-02 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «Remove the primary store's code from URLs»
+# https://www.upwork.com/ab/f/contracts/21683566
+!vendor/magento/module-store/Controller/Store/SwitchAction.php
+# 2019-01-18 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# "Fix a Mediaclip module issue in Magento 2: Undefined variable: product in quoteSaveBefore.php"
+# https://www.upwork.com/ab/f/contracts/21420844
+# https://www.upwork.com/messages/rooms/room_7788403d0ee0b953a47b704fee282e85/story_f4239e8699fd133ebb800f89b73d310a
+!vendor/magento/module-store/Model/Plugin/StoreCookie.php
+# 2019-01-18 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# "Fix a Mediaclip module issue in Magento 2: Undefined variable: product in quoteSaveBefore.php"
+# https://www.upwork.com/ab/f/contracts/21420844
+# https://www.upwork.com/messages/rooms/room_7788403d0ee0b953a47b704fee282e85/story_f4239e8699fd133ebb800f89b73d310a
+!vendor/magento/module-store/Model/StoreResolver.php
+# 2018-08-17 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «For dev site when I go to dev2.inkifi.com I get re-directed to : https://dev2.inkifi.com/uk/
+# Even though in admin it says the base URL is only dev2.inkifi.com
+# I need the URL for the UK store to be only dev2.inkifi.com, did you change this?
+# For the USA the URL is correct now - dev2.inkifi.com/us/»
+# https://www.upwork.com/messages/rooms/room_22a80485ffe6bb541dae55cc66b85198/story_453f4ab09ce06a14327346d0161b5717
+!vendor/magento/module-store/Url/Plugin/RouteParamsResolver.php
+# 2020-03-02 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# The file has been modified by someone at 2017-11-02.
+!vendor/magento/module-theme/Model/Config/Processor/DesignTheme.php
+# 2018-08-17 Dmitry Fedyuk
+# "Fix the «Requested store is not found» issue while setting a design configuration value"
+# https://www.upwork.com/ab/f/contracts/20536961
+!vendor/magento/module-theme/Model/Design/Config/Validator.php
+# 2020-03-02 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# The file has been added by someone at 2018-03-14.
+# It integrates the website with https://www.awin.com
+!vendor/magento/module-theme/view/frontend/layout/success.phtml
+# 2020-03-02 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# The file has been modified by someone at 2018-04-24.
+# It replaces the «URL key for specified store already exists.» message with `$e->getMessage()`.
+!vendor/magento/module-url-rewrite/Model/Storage/DbStorage.php
+dev
+vendor/codeception
+vendor/magento/framework/Test
+vendor/magento/magento2-base
+vendor/magento/magento2-functional-testing-framework
+vendor/tubalmartin

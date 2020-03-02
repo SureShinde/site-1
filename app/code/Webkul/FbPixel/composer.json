@@ -1,0 +1,25 @@
+{
+    "name": "webkul/module-fbpixel",
+    "description": "Webkul Facebook Pixel for Magento2",
+    "require": {
+        "php": "7.0.2|7.0.4|~7.0.6|~7.1.0",
+        "magento/module-config": "101.0.*",
+        "magento/module-customer": "101.0.*",
+        "magento/module-catalog": "102.0.*",
+        "magento/framework": "101.0.*",
+        "magento/module-ui": "101.0.*"
+    },
+    "type": "magento2-module",
+    "version": "2.0.0",
+    "license": [
+        "proprietary"
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Webkul\\FbPixel\\": ""
+        }
+    }
+}

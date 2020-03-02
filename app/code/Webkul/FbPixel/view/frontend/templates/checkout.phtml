@@ -1,0 +1,33 @@
+<?php
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_FbPixel
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2018 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+$helper = $this->helper('Webkul\FbPixel\Helper\Data');
+$pixel_id = $helper->getPixelId();
+
+if ($pixel_id & $helper->getConfigValue('initiatecheckout')): 
+    $qoute = $block->getQuote();
+    $total = $qoute->getBaseGrandTotal();
+    $items = $qoute->getAllVisibleItems();
+    $currency = $qoute->getCurrency()->getBaseCurrencyCode();
+    $sku = [];
+    foreach ($items as $item) {
+        $sku[] = $item->getSku();
+    }
+    $product_sku = $helper->arryToContentIdString($sku);
+?>
+    <script>
+        fbq('track', 'InitiateCheckout',{
+            content_type: 'product',
+            content_ids: [<?php echo $product_sku; ?>],
+            value: <?php echo $total; ?>,
+            currency: '<?php echo $currency; ?>'
+        });
+    </script>
+<?php endif;

@@ -1,0 +1,8 @@
+.content-header .form-buttons {white-space:normal !important;}
+.optionextended-showhide-link{ color:red; cursor:pointer;}
+.ox-image {vertical-align: top;}
+.delete-button {margin-left: 2px;}
+.uploader {width:235px;}
+.uploader .browse-button {margin-top: 8px;}
+.uploader .file-row .file-info {word-wrap: break-word;} 
+.uploader .file-row .progressbar-container .upload-progress {background-color: #5cb85c;}

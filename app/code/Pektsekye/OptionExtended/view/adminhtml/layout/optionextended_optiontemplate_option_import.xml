@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <referenceContainer name="content">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Option\Import" name="optiontemplate_option_import"/>
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Option\Import\Grid" name="optiontemplate_option_import_grid"/>        
+    </referenceContainer>
+</page>

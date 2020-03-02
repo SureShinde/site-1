@@ -1,0 +1,23 @@
+<?php
+	$theme = $this->helper('Infortis\Base\Helper\Data');
+	// 2018-09-17 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+	// «Implement the store/currency switcher as in publicdesire.com»
+	// https://github.com/inkifi/store/issues/1
+	$accountLinksHtml = $block->getChildHtml('inkifi_store_switcher');
+	//Default Magento Top Links
+	if ($theme->getCfg('header/top_links'))
+	{
+		$accountLinksHtml .= $block->getChildHtml('top.links');
+	}
+
+	//Additional custom links
+	if ($tmpHtml = $block->getChildHtml('block_header_top_links'))
+	{
+		$accountLinksHtml .= $tmpHtml;
+	}
+?>
+<?php if ($accountLinksHtml): ?>
+	<div id="header-account" class="account-links top-links links-wrapper-separators-left skip-content skip-content--style">
+		<?php echo $accountLinksHtml; ?>
+	</div>
+<?php endif; ?>

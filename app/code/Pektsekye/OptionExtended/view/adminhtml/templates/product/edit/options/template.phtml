@@ -1,0 +1,31 @@
+
+     
+  <table id="ox_template_table">
+      <tr>
+        <td>
+        <?php echo $this->getTemplateSelect() ?>        
+        </td>
+        <td style="width:62px;position:relative;" align="right">
+          <span class="ox-loader">
+               <span class="spinner">
+                   <span></span><span></span><span></span><span></span>
+                   <span></span><span></span><span></span><span></span>
+               </span>
+          </span>
+        <?php echo $this->getApplyButtonHtml() ?></td>
+        <td style="width:62px" align="right">
+        <?php echo $this->getUseTemplateOptionsButtonHtml() ?>
+
+        </td>
+      </tr>
+  
+  <?php foreach($this->getAppliedTemplates() as $row): ?>
+      <tr id="ox_template_table_row_<?php echo $row['template_id']; ?>" ><td><?php echo $this->escapeHtml($row['title']) ?></td><td align="right"><a href="<?php echo $this->getOptionsUrl($row['template_id']) ?>" target="_blank"><?php echo __('View') ?></a></td><td align="right"><a href="#" onclick="optionExtended.removeTemplate(<?php echo $row['template_id'] ?>); return false;"><?php echo __('Remove') ?></a></td></tr>            
+  <?php endforeach; ?>
+  </table>
+
+<input data-form-part="product_form" class="input-text" type="hidden" id="ox_template_ids" name="product[optionextended_template_ids]" value="<?php echo $this->getTemplateIdsString() ?>">
+
+<script id="ox_optiontemplate_row_template" type="text/x-magento-tmpl">
+<tr id="ox_template_table_row_<%- template_id %>" ><td><%- title %></td><td align="right"><a href="<?php echo $this->getOptionsUrl() ?>template_id/<%- template_id %>" target="_blank"><?php echo __('View') ?></a></td><td align="right"><a href="#" onclick="optionExtended.removeTemplate(<%- template_id %>); return false;"><?php echo __('Remove') ?></a></td></tr>
+</script>

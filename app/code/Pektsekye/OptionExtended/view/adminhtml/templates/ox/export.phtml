@@ -1,0 +1,152 @@
+
+<div class="import-export-tax-rates">
+    <div class="import-tax-rates">
+
+
+            <fieldset class="fieldset">
+              <legend class="legend"><span><?php echo __('Import Product Custom Options'); ?></span></legend><br/>            
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>
+                <input type="hidden" name="import_type" value="options"/>                                
+                <input type="file" name="import_file" class="input-file required-entry"/>                     
+                <?php echo $this->getButtonHtml(__('Options'), '', 'import-submit') ?>
+              </form>    
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>  
+                <input type="hidden" name="import_type" value="values"/>                                
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Values'), '', 'import-submit') ?>
+              </form>     
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>  
+                <input type="hidden" name="import_type" value="options_translate"/>                                
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Options for Translation'), '', 'import-submit') ?>
+              </form>    
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>  
+                <input type="hidden" name="import_type" value="values_translate"/>                                
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Values for Translation'), '', 'import-submit') ?>
+              </form> 
+              <br/>
+              <legend class="legend"><span><?php echo __('Import Option Templates') ?></span></legend><br/>        
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>     
+                <input type="hidden" name="import_type" value="templates"/>                             
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Template Entities'), '', 'import-submit') ?>
+              </form>  
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>  
+                <input type="hidden" name="import_type" value="template_products"/>                                
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Template Products'), '', 'import-submit') ?>
+              </form>                              
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>  
+                <input type="hidden" name="import_type" value="template_options"/>                                
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Template Options'), '', 'import-submit') ?>
+              </form>    
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?> 
+                <input type="hidden" name="import_type" value="template_values"/>                                 
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Template Values'), '', 'import-submit') ?>
+              </form>     
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?>
+                <input type="hidden" name="import_type" value="template_options_translate"/>                                  
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Template Options for Translation'), '', 'import-submit') ?>
+              </form>    
+              <form class="import-form" action="<?php echo $this->getUrl('optionextended/ox_export/import') ?>" method="post" enctype="multipart/form-data">            
+                <?php echo $this->getBlockHtml('formkey')?> 
+                <input type="hidden" name="import_type" value="template_values_translate"/>                                 
+                <input type="file" name="import_file" class="input-file required-entry"/>
+                <?php echo $this->getButtonHtml(__('Template Values for Translation'), '', 'import-submit') ?>
+              </form>                                                                      
+            </fieldset>
+       
+        <script type="text/javascript">
+
+            require([
+                "jquery",
+                "mage/mage",
+                "loadingPopup"
+            ], function ($) {
+                $('.import-form').mage('form').mage('validation');            
+                $('.import-submit').click(function(){
+                    if ($(this).prev('input').val()) {
+                        $('body').loadingPopup({
+                            timeout: false
+                        });
+
+                        $(this.form).submit();
+                    }
+                });
+            });
+        </script>
+    </div>
+    <div class="export-tax-rates box-right">
+        
+        
+        <fieldset class="fieldset">
+            <legend class="legend"><span><?php echo __('Export Product Custom Options') ?></span></legend><br/>
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="options"/>                
+              <?php echo $this->getButtonHtml('Options', "this.form.submit()") ?>
+            </form>
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="values"/>              
+              <?php echo $this->getButtonHtml('Values', "this.form.submit()") ?>
+            </form>   
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="options_translate"/>               
+              <?php echo $this->getButtonHtml('Options for Translation', "this.form.submit()") ?>
+            </form> 
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="values_translate"/>               
+              <?php echo $this->getButtonHtml('Values for Translation', "this.form.submit()") ?>
+            </form>  
+            <br/>
+            <legend class="legend"><span><?php echo __('Export Option Templates') ?></span></legend><br/>
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="templates"/>                
+              <?php echo $this->getButtonHtml('Template Entities', "this.form.submit()") ?>
+            </form>
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="template_products"/>               
+              <?php echo $this->getButtonHtml('Template Products', "this.form.submit()") ?>
+            </form> 
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="template_options"/>                
+              <?php echo $this->getButtonHtml('Template Options', "this.form.submit()") ?>
+            </form> 
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="template_values"/>              
+              <?php echo $this->getButtonHtml('Template Values', "this.form.submit()") ?>
+            </form>               
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="template_options_translate"/>              
+              <?php echo $this->getButtonHtml('Template Options for Translation', "this.form.submit()") ?>
+            </form> 
+            <form action="<?php echo $this->getUrl('optionextended/ox_export/export') ?>" method="post" enctype="multipart/form-data">
+              <?php echo $this->getBlockHtml('formkey')?>
+              <input type="hidden" name="export_type" value="template_values_translate"/>               
+              <?php echo $this->getButtonHtml('Template Values for Translation', "this.form.submit()") ?>
+            </form>                                                
+        </fieldset>
+
+    </div>
+</div>

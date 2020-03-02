@@ -1,0 +1,130 @@
+
+<?php /** @var $this \Magento\Catalog\Block\Adminhtml\Product\Edit\Tab\Options\Type\Select */ ?>
+<script id="custom-option-select-type-template" type="text/x-magento-tmpl">
+    <div id="product_option_<%- data.option_id %>_type_<%- data.group %>" class="fieldset">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="col-draggable">&nbsp;</th>
+                    <th class="ox-opt-id"><?php echo __('Id') ?></th>                    
+                    <th><?php echo __('Title') ?><span class="required">*</span></th>
+                    <?php if ($this->getCanReadPrice() !== false) : ?>
+                    <th class="col-price"><?php echo __('Price') ?></th>
+                    <th class="col-price-type"><?php echo __('Price Type') ?></th>
+                    <?php endif; ?>
+                    <th class="ox-col-sku"><?php echo __('SKU') ?></th>
+                    <th class="ox-col-children"><?php echo __('Children') ?></th>  
+                    <th class="col-children-link"></th>                      
+                    <th class="col-image"><?php echo __('Image') ?></th>          
+                    <th class="ox-col-descr"><?php echo __('Description') ?></th> 
+                    <th class="ox-col-descr-wysiwyg">&nbsp;</th>                                                                        
+                    <th class="col-actions">&nbsp;</th>
+                    <th class="col-actions">                    
+                      <% if (['drop_down','radio'].indexOf(jQuery('#product_option_'+ data.option_id +'_type').val()) == -1){ %>
+                        <input data-form-part="product_form" onclick="optionExtended.checkAllCheckboxes(this, <%- data.option_id %>)" type="checkbox" name="ox_sd_<%- data.option_id %>[]" id="ox_sd_all_<%- data.option_id %>" class="checkbox"  title="<?php echo __('Mark all rows as Selected By Default'); ?>" value=""/>
+                      <% } else { %>
+                        <input data-form-part="product_form" onclick="optionExtended.uncheckAllRadio(<%- data.option_id %>)" type="radio" name="ox_sd_<%- data.option_id %>" id="ox_sd_all_<%- data.option_id %>"  checked="checked" class="radio" value=""/>
+                      <% } %>
+                    </th>		      
+                </tr>
+            </thead>
+            <tbody id="select_option_type_row_<%- data.option_id %>"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6"><?php echo $this->getAddButtonHtml() ?>
+                        <input data-form-part="product_form" name="validation_<%- data.option_id %>_result" class="required-option-select-type-rows" type="hidden" value="">
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</script>
+<script id="custom-option-select-type-row-template" type="text/x-magento-tmpl">
+    <tr id="product_option_<%- data.id %>_select_<%- data.select_id %>">
+        <td class="col-draggable">
+            <div data-role="draggable-handle" class="draggable-handle"
+                 title="<?php echo __('Sort Custom Option'); ?>"></div>
+            <input data-form-part="product_form" name="product[options][<%- data.id %>][values][<%- data.select_id %>][sort_order]" type="hidden" value="<%- data.sort_order %>">
+        </td>
+        <td class="ox-opt-id">
+            <input data-form-part="product_form" id="ox_row_id_<%- data.select_id %>" name="product[options][<%- data.id %>][values][<%- data.select_id %>][row_id]" type="hidden" value="<%- data.row_id %>">
+            <%- data.row_id %>
+        </td>        
+        <td class="select-opt-title">    
+          <% if (data.option_type_id != -1){ %> 
+            <input data-form-part="product_form" name="product[options][<%- data.id %>][values][<%- data.select_id %>][option_type_id]" type="hidden" value="<%- data.option_type_id %>">
+          <% } %>  
+            <input data-form-part="product_form" id="product_option_<%- data.id %>_select_<%- data.select_id %>_is_delete" name="product[options][<%- data.id %>][values][<%- data.select_id %>][is_delete]" type="hidden" value="">
+            <input data-form-part="product_form" id="product_option_<%- data.id %>_select_<%- data.select_id %>_title" name="product[options][<%- data.id %>][values][<%- data.select_id %>][title]" class="required-entry input-text select-type-title" type="text" value="<%- data.title %>" data-store-label="<%- data.title %>" <% if (typeof data.scopeTitleDisabled != 'undefined' && data.scopeTitleDisabled != null) { %> disabled="disabled" <% } %> /><%= data.checkboxScopeTitle %>
+        </td>
+        <?php if ($this->getCanReadPrice() !== false) : ?>
+        <td class="col-price select-opt-price">
+            <input data-form-part="product_form" id="product_option_<%- data.id %>_select_<%- data.select_id %>_price"
+                   name="product[options][<%- data.id %>][values][<%- data.select_id %>][price]"
+                   class="input-text validate-number product-option-price"
+                   type="text" value="<%- data.price %>" data-store-label="<%- data.price %>"
+                <?php if ($this->getCanEditPrice() === false) : ?>
+                   disabled="disabled"
+                <?php endif; ?>>
+        </td>
+        <td class="col-price-type select-opt-price-type"><?php echo $this->getPriceTypeSelectHtml('data-form-part="product_form"') ?><%= data.checkboxScopePrice %></td>
+        <?php else : ?>
+        <input data-form-part="product_form" id="product_option_<%- data.id %>_select_<%- data.select_id %>_price" name="product[options][<%- data.id %>][values][<%- data.select_id %>][price]" type="hidden">
+        <input data-form-part="product_form" id="product_option_<%- data.id %>_select_<%- data.select_id %>_price_type" name="product[options][<%- data.id %>][values][<%- data.select_id %>][price_type]" type="hidden">
+        <?php endif; ?>
+        <td class="ox-col-sku">
+            <input data-form-part="product_form" id="product_option_<%- data.id %>_select_<%- data.select_id %>_sku" name="product[options][<%- data.id %>][values][<%- data.select_id %>][sku]" class="input-text" type="text" value="<%- data.sku %>">
+        </td>
+        <td class="ox-col-children">
+            <input data-form-part="product_form" name="product[options][<%- data.id %>][values][<%- data.select_id %>][children]"  id="ox_<%- data.select_id %>_children" class="input-text" type="text" value="<%- data.children %>"  onblur="optionExtended.updateChildren(this, <%- data.id %>, <%- data.select_id %>)">
+            <select id="ox_<%- data.select_id %>_children_detailed_select"  style="display:none;"></select>   
+            <select data-form-part="product_form" onchange="optionExtended.onChildrenShortSelectChange(<%- data.select_id %>)" onblur="optionExtended.showInput(<%- data.id %>,<%- data.select_id %>,'short');" name="ox_childrend_dropdown" class="ox-children-dropdown" id="ox_<%- data.select_id %>_children_short_select"  style="display:none;" multiple ><option value=""> </option></select>                                  
+        </td> 
+        <td class="col-children-link">
+          <span id="ox_<%- data.select_id %>_show_link" class="ox-children-link">
+            <span onclick="optionExtended.showSelect(<%- data.id %>,<%- data.select_id %>,'detailed');" title="<?php __('Click to select certain values') ?>">S</span>&nbsp;
+            <span onclick="optionExtended.showSelect(<%- data.id %>,<%- data.select_id %>,'short');" title="<?php __('Click to select entire option with all its values') ?>">s</span>
+          </span>
+        </td>        
+        <td class="col-image">
+            <img id="ox_image_placeholder_<%- data.select_id %>" src="<%- data.image %>" <% if (!data.image){ %> style="display:none;" <% } %> width="40" height="40" class="ox-option-image"/>
+            <button onclick="optionExtended.deleteImage(<%- data.select_id %>);" <% if (!data.image){ %> style="display:none;" <% } %> id="ox_delete_image_button_<%- data.select_id %>" title="<?php echo __('Delete Image') ?>" type="button" class="action- delete ox-delete-image"><span>X</span></button>
+            <input data-form-part="product_form" type="hidden" name="product[options][<%- data.id %>][values][<%- data.select_id %>][delete_image]" id="ox_delete_image_<%- data.select_id %>" value="">
+            <input data-form-part="product_form" type="hidden" name="product[options][<%- data.id %>][values][<%- data.select_id %>][image_saved_as]" id="ox_image_saved_as_<%- data.select_id %>" value="<%- data.image_saved_as %>">                        
+            <input data-form-part="product_form" type="hidden" name="product[options][<%- data.id %>][values][<%- data.select_id %>][image]" id="ox_image_input_<%- data.select_id %>" value="">
+            <div id="ox_image_uploader_<%- data.select_id %>" class="uploader" <% if (data.image){ %> style="display:none;" <% } %>>
+                <div id="ox_image_browse_button_<%- data.select_id %>" class="fileinput-button form-buttons button">
+                    <span><?php echo __('Browse Files...') ?></span>
+                    <input id="ox_image_file_<%- data.select_id %>" type="file" name="image" data-url="<?php echo $this->getUploadUrl(); ?>"/>                        
+                </div>
+                <div class="clear"></div>
+                <div class="no-display" id="ox_image_uploader_<%- data.select_id %>-template">
+                    <div id="{{id}}" class="file-row">
+                        <span class="file-info">{{name}} ({{size}})</span>
+                        <div class="progressbar-container">
+                            <div class="progressbar upload-progress" style="width: 0%;">&nbsp;</div>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                </div>
+            </div>            
+        </td> 
+        <td class="ox-col-descr">
+            <input data-form-part="product_form" id="ox_description_<%- data.select_id %>" name="product[options][<%- data.id %>][values][<%- data.select_id %>][description]" class="input-text" type="text" value="<%- data.descr %>"<% if (typeof data.scopeDescriptionDisabled != 'undefined' && data.scopeDescriptionDisabled != null) { %> disabled="disabled" <% } %> /><%= data.checkboxScopeDescription %>                      
+        </td>  
+        <td class="ox-col-descr-wysiwyg">
+          <span onclick="catalogWysiwygEditor.open('<?php echo $this->getUrl('catalog/product/wysiwyg'); ?>', 'ox_description_<%- data.select_id %>');" title="<?php echo __('WYSIWYG Editor') ?>" class="optionextended-showhide-link">e</span>        
+        </td>                                      
+        <td class="col-actions col-delete"> 
+            <button type="button" title="<?php echo __('Delete Row') ?>" class="ox-delete-row-button" id="product_option_<%- data.id %>_select_<%- data.select_id %>_delete">
+            </button>        
+        </td>
+        <td class="col-actions">
+          <% if (['drop_down','radio'].indexOf(jQuery('#product_option_'+data.id+'_type').val()) == -1){ %>
+            <input data-form-part="product_form" type="checkbox"  class="checkbox optionextended-sd-input" name="ox_sd_<%- data.id %>[]" id="ox_sd_<%- data.select_id %>" onclick="optionExtended.onCheckboxCheck(this, <%- data.id %>, <%- data.select_id %>)"  title="<?php echo __('Mark row as Selected By Default'); ?>" value="" <% if (data.sd_checked){ %> checked="checked"<% } %> />
+         <% } else { %>
+            <input data-form-part="product_form" type="radio"  class="radio optionextended-sd-input" name="ox_sd_<%- data.id %>" id="ox_sd_<%- data.select_id %>" onclick="optionExtended.onRadioCheck(<%- data.id %>, <%- data.select_id %>)"  title="<?php echo __('Mark row as Selected By Default'); ?>" value="" <% if (data.sd_checked){ %> checked="checked"<% } %> />
+          <% } %>        
+        </td>        
+    </tr>
+</script>

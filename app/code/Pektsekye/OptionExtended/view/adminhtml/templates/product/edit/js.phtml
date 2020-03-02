@@ -1,0 +1,58 @@
+<script type="text/javascript">
+//<![CDATA[
+
+var oxFieldSet;
+
+var initOptionExtended = function(){
+
+  require([
+      "jquery",
+      "jquery/ui",   
+      "jquery/validate"          
+  ],function($) {
+
+    oxFieldSet = $('#ox_customoptions');
+
+    var loadOptionExtendedOptions = function(){
+    
+      if (oxFieldSet.find('div').length > 0)
+        return;
+
+      var jqxhr = $.ajax({
+              type: 'POST',
+              url: '<?php echo $this->getUrl('optionextended/product_edit/options', array('_current' => true)); ?>',
+              async: true,
+              data: {isAjax:true, form_key: FORM_KEY},
+              dataType: 'html',
+              showLoader: true              
+          }).success(function (result) {
+              if (!result.error){      
+                oxFieldSet.html(result);              
+              }        
+          });
+          
+    };   
+    
+    loadOptionExtendedOptions();
+    
+    oxFieldSet.closest('.admin__fieldset-wrapper-content').prev('.fieldset-wrapper-title').click(loadOptionExtendedOptions);
+       
+    
+    //to make it not validate hidden Popup checkbox (not attached to any <form> element) on product save Magento 2.1.1
+    //lib/web/jquery/jquery.validate.js
+    $.validator.prototype.validationTargetFor = function (element) {
+        // if radio/checkbox, validate first element in group instead
+        if (this.checkable(element)) {
+            var firstElement = this.findByName(element.name).not(this.settings.ignore)[0];
+            if (firstElement)
+              return firstElement;
+        }
+        return element;
+    }
+        
+  });
+
+};
+
+//]]> 
+</script>

@@ -1,0 +1,19 @@
+{
+    "name": "magefan/module-login-as-customer",
+    "description": "N/A",
+    "require": {
+        "php": "~5.6.5 || >=7.0"
+    },
+    "type": "magento2-module",
+    "version": "2.1.4",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "autoload": {
+        "files": [ "registration.php" ],
+        "psr-4": {
+            "Magefan\\LoginAsCustomer\\": ""
+        }
+    }
+}

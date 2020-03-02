@@ -1,0 +1,288 @@
+<?php echo $this->getTemplatesHtml() ?>
+<script id="ox-custom-option-base-template" type="text/x-magento-tmpl">
+    <div class="fieldset-wrapper collapsable-wrapper" id="option_<%- data.id %>">
+    
+        <div class="fieldset-wrapper-title" id="ox_wrapper_title_<%- data.id %>" >        
+            <div class="actions">
+                <span class="ox-loader">
+                     <span class="spinner">
+                         <span></span><span></span><span></span><span></span>
+                         <span></span><span></span><span></span><span></span>
+                     </span>
+                </span>             
+                <?php echo $this->getDuplicateOptionButtonHtml() ?>&nbsp;&nbsp;
+                <button type="button" title="<?php echo __('Delete Custom Option'); ?>" class="action-delete" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_delete">
+                    <span><?php echo __('Delete Custom Option'); ?></span>
+                </button>
+            </div>  
+            <div class="ox-option-title" data-role="title" data-toggle="collapse" data-target="#<%- data.id %>-content">
+                <span id="option_<%- data.id %>_header_title"><%- data.title %></span>
+            </div>                    
+            <div style="display:none;" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_move" data-role="draggable-handle" class="draggable-handle"
+                 title="<?php echo __('Sort Custom Options'); ?>"></div>                
+        </div>
+        <div class="fieldset-wrapper-content collapse" id="<%- data.id %>-content" style="display:none;">
+          <a data-ajax="true" href="<%- data.id %>"></a>
+        </div>    
+    </div>
+</script>
+<script id="ox-custom-option-content-template" type="text/x-magento-tmpl">
+  <fieldset class="fieldset">
+      <fieldset class="fieldset-alt" id="<?php echo $this->getFieldId() ?>_<%- data.id %>">
+          <input data-form-part="product_form" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_is_delete" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][is_delete]" type="hidden" value=""/>
+          <input data-form-part="product_form" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_previous_type" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][previous_type]" type="hidden" value="<%- data.type %>"/>
+          <input data-form-part="product_form" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_previous_group" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][previous_group]" type="hidden" value=""/>
+          <input data-form-part="product_form" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_id" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][new_option_id]" type="hidden" value="<%- data.id %>"/>
+          <input data-form-part="product_form" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_option_id" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][option_id]" type="hidden" value="<%- data.option_id %>"/>                   
+          <input data-form-part="product_form" id="ox_sd_field_<%- data.id %>" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][selected_by_default]" type="hidden" value="<%- data.selected_by_default %>"/>                    
+          
+          <div class="field field-option-title required">
+              <label class="label" for="<?php echo $this->getFieldId() ?>_<%- data.id %>_title">
+                  <?php echo __('Option Title') ?>
+              </label>
+              <div class="control">
+                  <input data-form-part="product_form" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_title"
+                         name="<?php echo $this->getFieldName() ?>[<%- data.id %>][title]"
+                         class="required-entry input-text"
+                         type="text"
+                         value="<%- data.title %>"
+                         data-store-label="<%- data.title %>"
+                         <% if (typeof data.scopeTitleDisabled != 'undefined' && data.scopeTitleDisabled != null) { %> disabled="disabled" <% } %>                         
+                         >                         
+                  <%= data.checkboxScopeTitle %>
+              </div>
+          </div>
+
+          <div class="field field-option-input-type required">
+              <label class="label" for="<?php echo $this->getFieldId() ?>_<%- data.id %>_type">
+                  <?php echo __('Input Type') ?>
+              </label>
+              <div class="control opt-type">
+                  <?php echo $this->getTypeSelectHtml() ?>
+              </div>
+          </div>
+
+          <div class="field field-option-req">
+              <label class="label" for="<?php echo $this->getFieldId() ?>_<%- data.id %>_required">
+                  <?php echo __('Required')?>
+              </label>          
+              <div class="control">
+                  <input id="<?php echo $this->getFieldId() ?>_<%- data.id %>_required" name="ox_is_required_<%- data.id %>" class="is-required" type="checkbox" checked="checked"/>
+                  <span style="display:none;"><?php echo $this->getRequireSelectHtml() ?></span>
+              </div>
+          </div>
+          <div class="field field-option-sort-order">
+              <label class="label" for="<?php echo $this->getFieldId() ?>_<%- data.id %>_sort_order">
+                  <?php echo __('Sort Order') ?>
+              </label>
+              <div class="control">
+                <input data-form-part="product_form" id="<?php echo $this->getFieldId() ?>_<%- data.id %>_sort_order" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][sort_order]" class="input-text" type="text" value="<%- data.sort_order %>"/>
+              </div>
+          </div>                    
+          <br/>
+          <div class="field ox-option-note">
+              <label class="label" for="ox_note_<%- data.id %>">
+                  <?php echo __('Note')?>
+              </label>                    
+              <div class="control">
+                  <input data-form-part="product_form" type="text" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][note]" id="ox_note_<%- data.id %>" class="input-text ox-note-field" value="<%- data.note %>" <% if (typeof data.scopeNoteDisabled != 'undefined' && data.scopeNoteDisabled != null) { %> disabled="disabled" <% } %> />                 
+                  <span onclick="catalogWysiwygEditor.open('<?php echo $this->getUrl('catalog/product/wysiwyg'); ?>', 'ox_note_<%- data.id %>');" title="<?php echo __('WYSIWYG Editor') ?>" class="optionextended-showhide-link">e</span>        
+                  <%= data.checkboxScopeNote %>         
+              </div>
+          </div> 
+          <div class="field ox-option-code">
+              <label class="label" for="ox_code_<%- data.id %>">
+                  <?php echo __('Code')?>
+              </label>                    
+              <div class="control">
+                  <input data-form-part="product_form" type="text" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][code]" id="ox_code_<%- data.id %>" class="input-text" value="<%- data.code %>" />
+              </div>
+          </div> 
+           
+          <div id="ox_layout_div_<%- data.id %>" class="field ox-option-layout" <% if (['drop_down','multiple','radio','checkbox'].indexOf(data.type) == -1){ %> style="display:none;" <% } %>>
+              <label class="label" for="ox_layout_<%- data.id %>">
+                  <?php echo __('Layout')?>
+              </label>                    
+              <div class="control">
+                  <?php echo $this->getLayoutSelectHtml(); ?>
+              </div>
+          </div>  
+          <div id="ox_popup_div_<%- data.id %>" class="field ox-option-popup" <% if (['drop_down','multiple','radio','checkbox'].indexOf(data.type) == -1){ %> style="display:none;" <% } %>>
+              <label class="label" for="ox_popup_<%- data.id %>">
+                  <?php echo __('Popup')?>
+              </label>                    
+              <div class="control">
+                  <input data-form-part="product_form" type="checkbox" name="<?php echo $this->getFieldName() ?>[<%- data.id %>][popup]" id="ox_popup_<%- data.id %>" class="input-text" value="1"/>
+              </div>
+          </div> 
+                                                                                        
+      </fieldset>
+  </fieldset>
+</script>
+<div id="import-container" style="display: none;"></div>
+<?php if (!$this->isReadonly()): ?>
+<div><input data-form-part="product_form" type="hidden" id="ox_affect_product_custom_options" name="product[affect_product_custom_options]" value="0"/></div>
+<?php endif; ?>
+<script type="text/javascript">
+
+require([
+    "jquery",
+    'mage/template',    
+    "Magento_Catalog/js/custom-options" 
+], function($, mageTemplate){
+
+  
+
+  
+  var fieldSet = $('#ox_customoptions');
+
+  var config = {  
+        maxFileSize : <?php echo (int) $this->getFileSizeService()->getMaxFileSize() ?>,
+        maxWidth    : <?php echo (int) \Magento\Framework\File\Uploader::MAX_IMAGE_WIDTH ?>,
+        maxHeight   : <?php echo (int) \Magento\Framework\File\Uploader::MAX_IMAGE_HEIGHT ?>, 
+        aboveOption      : '<?php echo $this->escapeJsQuote(__('Above Option')) ?>',
+        beforeOption     : '<?php echo $this->escapeJsQuote(__('Before Option')) ?>',
+        belowOption      : '<?php echo $this->escapeJsQuote(__('Below Option')) ?>',
+        grid             : '<?php echo $this->escapeJsQuote(__('Grid')) ?>',
+        gridcompact      : '<?php echo $this->escapeJsQuote(__('Grid Compact')) ?>',        
+        list             : '<?php echo $this->escapeJsQuote(__('List')) ?>',
+        mainImage        : '<?php echo $this->escapeJsQuote(__('Main Image')) ?>',
+        colorPicker      : '<?php echo $this->escapeJsQuote(__('Color Picker')) ?>',
+        colorPickerSwap  : '<?php echo $this->escapeJsQuote(__('Picker & Main')) ?>',
+        
+        templateDataUrl  : '<?php echo $this->getTemplateDataUrl(); ?>',  
+        productId  : <?php echo (int) $this->getProduct()->getId(); ?>,  
+        storeId  : <?php echo (int) $this->getProduct()->getStoreId(); ?>,
+        
+        sdTitle     : '<?php echo $this->escapeJsQuote(__('Mark row as Selected By Default')) ?>',   
+        selectAll   : '<?php echo $this->escapeJsQuote(__('Mark all rows as Selected By Default')) ?>', 
+                
+        importOptionsUrl : '<?php echo $this->getUrl('optionextended/product_edit/ImportOptions'); ?>',
+        loadOptionUrl : '<?php echo $this->getUrl('optionextended/product_edit/loadOption'); ?>',   
+        fieldId : '<?php echo $this->getFieldId() ?>',
+        
+        productGridUrl : '<?php echo $this->getProductGridUrl() ?>',
+        formKey : '<?php echo $this->getFormKey() ?>',
+        customOptionsUrl : '<?php echo $this->getCustomOptionsUrl() ?>',
+        isReadonly : <?php echo (int) $this->isReadonly() ?>,
+        itemCount : <?php echo (int) $this->getItemCount() ?>,                
+        
+        sectionTitles : <?php echo $this->getSectionTitlesJson(); ?>  
+  };
+
+  $.extend(config, <?php echo $this->getIdsJson(); ?>);
+  
+  optionExtended = fieldSet.optionExtended(config).data("optionExtended");    
+
+});
+
+
+
+require([
+    "jquery",
+    "tinymce",
+    "Magento_Ui/js/modal/modal",
+    "prototype",
+    "mage/adminhtml/events"
+], function(jQuery, tinyMCE, modal){
+
+  Window.keepMultiModalWindow = true;
+  var catalogWysiwygEditor = {
+      overlayShowEffectOptions : null,
+      overlayHideEffectOptions : null,
+      modal: null,
+      open : function(editorUrl, elementId) {
+          if (editorUrl && elementId) {
+             jQuery.ajax({
+                  url: editorUrl,
+                  data: {
+                      element_id: elementId + '_editor',
+                      store_id: ''
+                  },
+                  showLoader: true,
+                  dataType: 'html',
+                  success: function(data, textStatus, transport) {
+                      this.openDialogWindow(data, elementId);
+                  }.bind(this)
+              });
+          }
+      },
+      openDialogWindow : function(data, elementId) {
+          var self = this;
+
+          if (this.modal) {
+              this.modal.html(jQuery(data).html());
+          } else {
+              this.modal = jQuery(data).modal({
+                  title: 'WYSIWYG Editor',
+                  modalClass: 'magento',
+                  type: 'slide',
+                  firedElementId: elementId,
+                  buttons: [{
+                      text: jQuery.mage.__('Cancel'),
+                      click: function () {
+                          self.closeDialogWindow(this);
+                      }
+                  },{
+                      text: jQuery.mage.__('Submit'),
+                      click: function () {
+                          self.okDialogWindow(this);
+                      }
+                  }],
+                  close: function () {
+                      self.closeDialogWindow(this);
+                  }
+              });
+          }
+          this.modal.modal('option', 'firedElementId', elementId);        
+          this.modal.modal('openModal');
+          $(elementId + '_editor').value = $(elementId).value;
+      },
+      okDialogWindow : function(dialogWindow) {
+          if (dialogWindow.options.firedElementId) {
+              wysiwygObj = eval('wysiwyg'+dialogWindow.options.firedElementId+'_editor');
+              wysiwygObj.turnOff();
+              if (tinyMCE.get(wysiwygObj.id)) {
+                  $(dialogWindow.options.firedElementId).value = tinyMCE.get(wysiwygObj.id).getContent();
+              } else {
+                  if ($(dialogWindow.options.firedElementId+'_editor')) {
+                      $(dialogWindow.options.firedElementId).value = $(dialogWindow.options.firedElementId+'_editor').value;
+                  }
+              }
+              tinyMCE.editors[dialogWindow.options.firedElementId].load();
+              if (typeof varienGlobalEvents != undefined) {
+                  varienGlobalEvents.fireEvent('tinymceChange');
+              }
+          }
+          this.closeDialogWindow(dialogWindow);
+      },
+      closeDialogWindow : function(dialogWindow) {
+          // remove form validation event after closing editor to prevent errors during save main form
+          if (typeof varienGlobalEvents != undefined && editorFormValidationHandler) {
+              varienGlobalEvents.removeEventHandler('formSubmit', editorFormValidationHandler);
+          }
+
+          //IE fix - blocked form fields after closing
+          try {
+              $(dialogWindow.options.firedElementId).focus();
+          } catch (e) {
+              //ie8 cannot focus hidden elements
+          }
+
+          //destroy the instance of editor
+          wysiwygObj = eval('wysiwyg'+dialogWindow.options.firedElementId+'_editor');
+          if (tinyMCE.get(wysiwygObj.id)) {
+             tinyMCE.execCommand('mceRemoveControl', true, wysiwygObj.id);
+          }
+
+          dialogWindow.closeModal();
+          Windows.overlayShowEffectOptions = this.overlayShowEffectOptions;
+          Windows.overlayHideEffectOptions = this.overlayHideEffectOptions;
+      }
+  };
+
+  window.catalogWysiwygEditor = catalogWysiwygEditor;
+  
+});
+
+</script>

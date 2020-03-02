@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config>
+    <event name="catalog_product_load_after">
+        <observer name="optionextended" instance="Pektsekye\OptionExtended\Model\Observer\AddOptionTemplatesToProduct"/>
+    </event>   
+</config>

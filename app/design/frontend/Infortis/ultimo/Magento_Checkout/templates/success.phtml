@@ -1,0 +1,91 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */?>
+<?php /** @var $block \Magento\Checkout\Block\Onepage\Success */ ?>
+<div class="checkout-success">
+    <?php if ($block->getOrderId()):?>
+        <?php if ($block->getCanViewOrder()) :?>
+            <p><?= __('Your order number is: %1.', sprintf('<a href="%s" class="order-number"><strong>%s</strong></a>', $block->escapeHtml($block->getViewOrderUrl()), $block->escapeHtml($block->getOrderId()))) ?></p>
+        <?php  else :?>
+            <p><?= __('Your order # is: <span>%1</span>.', $block->escapeHtml($block->getOrderId())) ?></p>
+        <?php endif;?>
+            <p><?= /* @escapeNotVerified */ __('We\'ll email you an order confirmation with details and tracking info.') ?></p>
+    <?php endif;?>
+
+    <?= $block->getAdditionalInfoHtml() ?>
+
+    <div class="actions-toolbar">
+        <div class="primary">
+            <a class="action primary continue" href="<?= /* @escapeNotVerified */ $block->getContinueUrl() ?>"><span><?= /* @escapeNotVerified */ __('Continue Shopping') ?></span></a>
+        </div>
+    </div>
+</div>
+<?php 
+//-------------------------------------------
+// START AWIN CONVERSION VALUE TRACKING CODE
+//-------------------------------------------
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$checkout = $objectManager->create('\Magento\Checkout\Model\Session');
+$order = $checkout->getLastRealOrder();
+$lastOrderId = $checkout->getLastOrderId(); 
+
+$order = $objectManager->create('\Magento\Sales\Model\Order')->load($lastOrderId);
+//echo "<pre>"; print_r($order->getData());
+//$order = Mage::getModel('sales/order')->load($lastOrderId);
+$_products = $order->getAllItems();
+
+$_totalData = $order->getData();
+$_grand = round($_totalData['grand_total'],2); 
+$_sub = round($_totalData['subtotal'],2); 
+$_ship = round($_totalData['shipping_amount'],2); 
+$_discount = round($_totalData['discount_amount'],2);
+$_voucher = $_totalData['coupon_code'];
+$_total = round($_sub + $_discount,2);
+?>
+<img src="https://www.awin1.com/sread.img?tt=ns&amp;tv=2&amp;merchant=12521&amp;amount=<?php echo $_total; ?>&amp;ref=<?php echo $this->getOrderId(); ?>&amp;parts=DEFAULT:<?php echo $_total; ?>&amp;vc=<?php echo $_voucher; ?>&amp;ch=aw&amp;testmode=0&amp;cr=GBP" />
+<form style="display:none;" name="aw_basket_form">
+ <textarea wrap="physical" id="aw_basket">
+<?php 
+$productLines = array();
+foreach($_products as $product => $p) {
+    if ($p['order_id'] == $lastOrderId) {
+        if (is_null($p['parent_item_id'])) {
+            $productLines[$p['item_id']] = 'AW:P|12521|' . $this->getOrderId() . '|' . $p->getProductId() . '|' . $p->getName() . '|' . round($p->getPrice(),2) . '|' . round($p->getQtyOrdered(), 0) . '|' . $p->getSku() . '|DEFAULT|' . "\r\n";
+        }
+    }
+}
+foreach ($productLines as $productLine) {
+    echo $productLine;
+}
+?>
+</textarea>
+ </form>
+ 
+<script type="text/javascript">
+        //<![CDATA[
+        /*** Do not change ***/
+        var AWIN = {};
+        AWIN.Tracking = {};
+        AWIN.Tracking.Sale = {};
+ 
+        /*** Set your transaction parameters ***/
+        AWIN.Tracking.Sale.amount = '<?php echo $_total; ?>';
+        AWIN.Tracking.Sale.currency = 'GBP';
+        AWIN.Tracking.Sale.channel = 'aw';
+        AWIN.Tracking.Sale.orderRef = '<?php echo $this->getOrderId(); ?>';
+        AWIN.Tracking.Sale.parts = 'DEFAULT:<?php echo $_total; ?>';
+        AWIN.Tracking.Sale.voucher = '<?php echo $_voucher; ?>';
+        AWIN.Tracking.Sale.test = '0';
+        //]]>
+</script>
+<script>
+pintrk('track', 'checkout', {
+value: 18
+});
+</script>
+<!-- <script src="https://www.dwin1.com/12521.js" type="text/javascript" defer="defer"></script>
+ -->
+
+

@@ -1,0 +1,30 @@
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "optionExtended": {                 
+                "spacer"     : "<?php echo $this->getViewFileUrl('Pektsekye_OptionExtended::images/spacer.gif') ?>",	
+                "imageTitle" : "<?php echo $this->escapeJsQuote(__('Click to Enlarge')) ?>",
+                "infoIcon"   : "<?php echo $this->getViewFileUrl('Pektsekye_OptionExtended::images/info_icon.gif') ?>",
+                "checkIcon"  : "<?php echo $this->getViewFileUrl('Pektsekye_OptionExtended::images/check_icon.png') ?>",
+                          
+                "imageDirUrl"       : "<?php echo $this->getProductBaseMediaUrl() ?>",
+<?php
+/**
+ * 2019-05-29 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+ * URLs broke JSON in Windows by expressions like
+ * "http://inkifi-staging.ngrok.io:714/pub/media/catalog/product\cache\f4a2bc458ca2feecb5750446998dc347\"
+ */
+?>
+                "thumbnailDirUrl"   : "<?= df_path_n($this->getThumbnailDirUrl()) ?>",
+                "pickerImageDirUrl" : "<?= df_path_n($this->getPickerImageDirUrl()) ?>",
+                "hoverImageDirUrl"  : "<?= df_path_n($this->getHoverImageDirUrl()) ?>",
+                "placeholderUrl"    : "<?php echo $this->getPlaceholderUrl() ?>",
+                	
+                "inPreconfigured"   : <?php echo $this->getInPreconfigured() ?>,
+           
+                "config" : <?php echo $this->getConfig() ?>
+            }
+        }
+    }
+</script>
+    

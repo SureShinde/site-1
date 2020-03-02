@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Amasty Team
+ * @copyright Copyright (c) 2017 Amasty (https://www.amasty.com)
+ * @package Amasty_XmlSitemap
+ */
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Amasty_XmlSitemap::xml_sitemap"
+             title="XML Google Sitemaps"
+             module="Amasty_XmlSitemap"
+             sortOrder="20"
+             parent="Amasty_SeoToolKit::seotoolkit"
+             action="amxmlsitemap/sitemap/index"
+             resource="Amasty_XmlSitemap::sitemap"/>
+    </menu>
+</config>

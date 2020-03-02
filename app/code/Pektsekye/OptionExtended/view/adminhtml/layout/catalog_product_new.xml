@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head>
+        <css  src="Pektsekye_OptionExtended::product/edit/main.css"/>
+        <css  src="Pektsekye_OptionExtended::product/edit/styles-old.css"/>        
+        <link src="Pektsekye_OptionExtended::product/edit/js/widget.js"/>                                                 
+    </head>  
+    <body>
+        <referenceContainer name="js">
+            <block class="Pektsekye\OptionExtended\Block\Adminhtml\Product\Edit\Js" template="product/edit/js.phtml"/>
+        </referenceContainer>
+    </body>          
+</page>

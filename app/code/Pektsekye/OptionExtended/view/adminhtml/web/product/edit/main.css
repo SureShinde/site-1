@@ -1,0 +1,194 @@
+
+#ox_template_table {
+width:500px;
+}
+
+#ox_template_table .ox-loader {
+display: none;
+position: absolute;
+left: -37px;
+top: 17px;
+}
+
+#ox_template_table .ox-loader .spinner {
+font-size: 2rem;
+margin-right: 0.8rem;
+width: 2rem;
+height: 1.6rem;
+} 
+
+#ox_template_table.loading .ox-loader {
+display: inline-block;
+} 
+
+
+
+.fieldset-wrapper-title .ox-loader {
+display: none;
+margin-top: -1rem;
+}
+
+.fieldset-wrapper-title .ox-loader .spinner {
+font-size: 2rem;
+margin-right: 0.8rem;
+width: 2rem;
+height: 1.6rem;
+}
+
+.fieldset-wrapper-title.loading .ox-loader {
+display: inline-block;
+}    
+
+#product_options_container_top .fieldset-wrapper-title {
+padding-left: 0 !important;
+}
+
+
+
+
+
+
+.ox-option-title::before {
+position: absolute;
+left: 5px;
+top: 10px;
+font-family: 'Admin Icons';
+font-size: 16px;
+font-style: normal;
+speak: none;
+font-weight: normal;
+-webkit-font-smoothing: antialiased;
+content: '\e616';
+color: #B2B0AD;
+}
+.opened > .fieldset-wrapper-title > .ox-option-title:before{content: '\e615'}
+
+.ox-option-title {
+width:100%; 
+padding-left:25px;
+padding-top: 9px;
+padding-bottom: 8px;
+color: #555;
+font: normal 16px/1.333 Arial, Verdana, sans-serif;
+cursor: pointer;
+}
+
+
+/* Expand */
+.optionextended-expand-middle {padding:23px 0 0 0;}
+.optionextended-expand-columns {background:none;}
+.optionextended-expand-side-col {display:none;}
+.optionextended-expand-main-col {margin:0 !important; padding:0 0 25px 0 !important;}
+
+/* Expand Container*/
+.optionextended-expand-container {float:left; margin: 0 10px 0 10px;}
+.optionextended-expand-container img {margin-top:5px; margin-right:4px; cursor:pointer;}
+
+
+/* Option Container*/
+
+.optionextended-option-container {}
+.optionextended-option-orig-table {float:left; width:485px !important;}
+.optionextended-option-orig-table th.opt-order {width:65px;}
+.optionextended-option-table {float:left;}
+.optionextended-option-table td {padding:5px 5px 0 0;}
+
+.ox-note-field {width:90% !important;}
+
+.optionextended-layout-select {width:105px !important; }
+.optionextended-popup-span {width:30px;}
+.optionextended-duplicate-container {float:right; height:85px;}
+.optionextended-duplicate-option-button {display:inline-block; margin-bottom:5px; }
+.optionextended-spacer{height:1px; clear:both;}
+.optionextended-option-order-td {padding-right:8px !important;}
+
+
+/* Option Values Table*/
+#product_options_container .data-table td.col-draggable {width:22px; }
+#product_options_container .data-table .ox-opt-id {width:20px; padding:0;}
+
+#product_options_container .data-table tr td:first-child.ox-opt-id {width:20px; padding-left:7px;}
+
+.optionextended-children-column {width:182px;}
+.optionextended-children-input {width:176px !important;padding:2px; border-width:1px; border-style:solid; border-color:#aaa #c8c8c8 #c8c8c8 #aaa; background:#fff; font:12px arial, helvetica, sans-serif;}
+
+#product_options_container .data-table td,
+#product_options_container .data-table td.opt-price, 
+#product_options_container .data-table td.opt-price-type,
+
+#product_options_container .data-table td.col-price,
+#product_options_container .data-table td.col-price-type,
+#product_options_container .data-table .ox-col-sku {width:auto;}
+
+#product_options_container .data-table .ox-col-children {width:182px;}
+#product_options_container .data-table .ox-children-dropdown {width:176px !important; height:auto; padding:2px; border-width:1px; border-style:solid; border-color:#aaa #c8c8c8 #c8c8c8 #aaa; background:#fff; font:12px arial, helvetica, sans-serif;}
+#product_options_container .data-table .col-children-link {width:36px !important; padding:0 0 0 4px !important;}
+#product_options_container .data-table .ox-children-link {width:36px !important; vertical-align: top; color: red; cursor: pointer;}
+
+#product_options_container .data-table td.col-image {width:100px; padding: 2px 0px;}
+#product_options_container .data-table td.col-image img.ox-option-image {vertical-align: middle;} 
+#product_options_container .data-table td.col-image button.ox-delete-image {vertical-align: middle; margin-left: 2px;}
+#product_options_container .data-table td.col-image .uploader {width:100px;}
+#product_options_container .data-table td.col-image .uploader .file-row .file-info {word-wrap: break-word;}  
+#product_options_container .data-table td.col-image .uploader .file-row .progressbar-container .upload-progress {background-color: #5cb85c;}
+
+#product_options_container .data-table .ox-col-descr   {padding-right:0 !important; }
+#product_options_container .data-table .ox-col-descr-wysiwyg   {width:20px; padding:0 0 0 2px !important; }
+
+#product_options_container .data-table td.col-actions   {width:10px; padding:0 0 0 2px !important; text-align:center;}
+
+.optionextended-textfield-column {width:205px;}
+.optionextended-textfield {width:200px; padding:2px; border-width:1px; border-style:solid; border-color:#aaa #c8c8c8 #c8c8c8 #aaa; background:#fff; font:12px arial, helvetica, sans-serif;}
+.optionextended-textarea {width:200px;}
+.optionextended-showhide-column {width:16px;}
+.optionextended-showhide-link {margin-left: 3px; color:red; cursor:pointer;}
+
+.optionextended-code-field {width:60px;}
+
+.optionextended-sd  {width:14px; padding-left:3px !important;}
+
+.optionextended-delete-image {float:right;}
+
+
+.optionextended-template-select {width:100%;}
+
+#optiontemplates-options-wrapper { margin-bottom:0px !important;}
+
+#ox_template_table {border: none;}
+#ox_template_table th,
+#ox_template_table td {padding: 4px;}
+
+
+#ox_customoptions div.field-option-sort-order input {width: 38px;}
+
+#ox_customoptions div.ox-option-note {padding-right: 10px;}
+
+#ox_customoptions button.ox-delete-row-button {   
+    border: none;
+    border-radius: 0;
+    background: none;
+    margin: 0 5px 0 5px;
+    padding: 0;
+    box-shadow: none;
+    text-shadow: none;
+    filter: none;     
+}
+
+#ox_customoptions button.ox-delete-row-button::before {
+    font-family: 'Admin Icons';
+    font-style: normal;
+    speak: none;
+    font-weight: normal;
+    font-size: 18px;
+    -webkit-font-smoothing: antialiased;
+    content: '\e630';
+    color: #b7b3ad;
+    text-shadow: none;        
+}
+
+#product_options_container .data-table td.col-image img.ox-option-image {vertical-align: middle;} 
+
+#product_options_container .data-table td.col-image button.ox-delete-image {vertical-align: middle; margin-left: 2px;}
+
+
+

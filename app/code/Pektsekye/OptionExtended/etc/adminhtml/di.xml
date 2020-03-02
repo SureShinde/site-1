@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">    
+    <type name="Magento\Catalog\Model\Product\Option\SaveHandler">
+        <plugin name="optionextended_option_savehandler" type="Pektsekye\OptionExtended\Plugin\Catalog\Model\Product\Option\SaveHandler" sortOrder="60" />
+    </type> 
+    <type name="Magento\Catalog\Model\Product\Option\Value">
+        <plugin name="optionextended_option_value" type="Pektsekye\OptionExtended\Plugin\Catalog\Model\Product\Option\Value" sortOrder="60" />
+    </type>    
+    <type name="Magento\Catalog\Model\Product\Option\Repository">
+        <plugin name="optionextended_duplicate_product" type="Pektsekye\OptionExtended\Plugin\Catalog\Model\Product\Option\Repository" sortOrder="60" />
+    </type>      
+    <type name="Magento\Catalog\Controller\Adminhtml\Product\Initialization\Helper">   
+        <plugin name="optionextended_initialization_helper" type="Pektsekye\OptionExtended\Plugin\Catalog\Controller\Adminhtml\Product\Initialization\Helper" sortOrder="70" />
+    </type>     
+    <type name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions">
+        <plugin name="optionextendedCustomOptions" type="Pektsekye\OptionExtended\Plugin\Catalog\Ui\DataProvider\Product\Form\Modifier\CustomOptions"/>
+    </type>                            
+</config>

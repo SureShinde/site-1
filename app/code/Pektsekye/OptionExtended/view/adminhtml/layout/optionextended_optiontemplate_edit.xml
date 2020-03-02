@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page layout="admin-2columns-left" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <referenceContainer name="left">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Edit\Tabs" name="optiontemplate_tabs">
+            <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Edit\Tab\Main" as="main"/>        
+            <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Edit\Tab\Products\Grid" as="products"/>
+            <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Edit\Tab\Options" as="options"/>
+        </block>                     
+    </referenceContainer>    
+    <referenceContainer name="content">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Edit" name="optiontemplate_edit"/>
+    </referenceContainer>
+</page>

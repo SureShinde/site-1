@@ -1,0 +1,21 @@
+<?php
+/**
+ * Copyright © 2013-2017 Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+?>
+<?php
+/**
+ * Shopping cart template
+ *
+ * @var $block \Magento\Checkout\Block\Cart
+ */
+
+if ($block->getItemsCount()) {
+    echo $block->getChildHtml('with-items'); ?>
+<?php echo $this->getLayout()->createBlock("Magento\Framework\View\Element\Template")->setTemplate("Mangoit_MediaclipHub::mediaclip/prompt/dustjacket.phtml")->toHtml(); ?>
+<?php echo $this->getLayout()->createBlock("Magento\Framework\View\Element\Template")->setTemplate("Mangoit_MediaclipHub::mediaclip/prompt/thumbnails.phtml")->toHtml(); ?>
+<?php echo $this->getLayout()->createBlock("Magento\Framework\View\Element\Template")->setTemplate("Mangoit_MediaclipHub::mediaclip/prompt/prints.phtml")->toHtml(); ?>
+<?php } else {
+    echo $block->getChildHtml('no-items');
+} ?>

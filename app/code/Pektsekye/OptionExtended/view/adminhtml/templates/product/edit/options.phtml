@@ -1,0 +1,37 @@
+
+<div class="fieldset-wrapper collapsable-wrapper" id="optiontemplates-options-wrapper">
+    <div class="fieldset-wrapper-title">
+        <strong class="title" data-toggle="collapse" data-target="#optiontemplates-options-content">
+            <span><?php echo __('Option Templates') ?></span>
+        </strong>
+    </div>
+    <div class="fieldset-wrapper-content in collapse" id="optiontemplates-options-content">
+        <fieldset class="fieldset">
+            <div id="optiontemplates_container">
+              <?php echo $this->getOptionTemplateHtml() ?>
+            </div>            
+        </fieldset>
+    </div>
+</div>  
+<div class="fieldset-wrapper collapsable-wrapper opened" id="product-custom-options-wrapper">
+    <div class="fieldset-wrapper-title">
+        <strong class="title" data-toggle="collapse" data-target="#product-custom-options-content">
+            <span><?php echo __('Custom Options') ?></span>
+        </strong>
+    </div>
+    <div class="fieldset-wrapper-content in collapse" id="product-custom-options-content">
+      <form>
+        <input name="form_key" type="hidden" value="<?php echo $block->getFormKey(); ?>" />
+        <fieldset class="fieldset">
+            <div id="product_options_container">
+                <div id="product_options_container_top"></div>
+                <?php echo $this->getOptionsBoxHtml() ?>
+            </div>            
+
+            <div class="actions">
+                <?php echo $this->getAddButtonHtml() ?>
+            </div>
+        </fieldset>
+      </form>        
+    </div>
+</div>

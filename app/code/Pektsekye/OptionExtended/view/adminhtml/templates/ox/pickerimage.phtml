@@ -1,0 +1,90 @@
+  <form id="pickerimages_form" action="<?php echo $this->getSaveUrl(); ?>" method="post">
+    <?php echo $this->getBlockHtml('formkey')?>  
+    <div class="content-header">
+        <table cellspacing="0" width="100%">
+            <tr>
+                <td>
+                  <h3 class="icon-head"><?php echo __('Picker Images') ?></h3>
+                  <div style="float:right">
+		                  <button class="button" type="submit"><span><span><?php echo __('Save Images') ?></span></span></button>    
+                  </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="entry-edit" >
+      <div class="entry-edit-head">
+        <h4 class="icon-head head-edit-form fieldset-legend">&nbsp;</h4>
+      </div>
+      <div class="box" id="pickerimage_container">                      
+          <table class="ox-table" id="ox_table">
+            <tr>
+              <th width="200"><?php echo __('Match option by title:'); ?></th>
+              <th><?php echo __('Image'); ?></th>    
+            </tr> 
+            <tr id="ox_add_image_row">
+              <td colspan="2"><button class="scalable add ox-add-image" type="button" ><span><span><?php echo __('Add Image') ?></span></span></button></td>    
+            </tr>            
+          </table>        
+
+      </div>          
+    </div> 
+  </form>    
+ <script id="image-row-template" type="text/x-magento-tmpl">
+  <tr id="ox_image_row_<%- data.id %>">
+    <td>
+       <input type="text" id="ox_value_title_<%- data.id %>" name="values[<%- data.id %>][title]" value="<%- data.title %>" />
+    </td> 
+    <td>
+         
+      <img class="ox-image" id="ox_image_placeholder_<%- data.id %>" src="<%- data.image_url %>" <% if (!data.image){ %> style="display:none;" <% } %> width="40"/>
+      <button <% if (!data.image){ %> style="display:none;" <% } %> id="ox_delete_image_button_<%- data.id %>" title="<?php echo __('Delete Image') ?>" type="button" class="action- scalable delete delete-select-row icon-btn delete-button"><span>X</span></button>
+       <input type="hidden" id="ox_delete_image_<%- data.id %>" name="values[<%- data.id %>][delete_image]" value="" />                                
+       <input type="hidden" id="ox_image_saved_as_<%- data.id %>" name="values[<%- data.id %>][image_saved_as]" value="<%- data.image %>" /> 
+       <input type="hidden" id="ox_image_input_<%- data.id %>" name="values[<%- data.id %>][image]" value="" />
+      <div id="ox_image_uploader_<%- data.id %>" class="uploader" <% if (data.image){ %> style="display:none;" <% } %>>
+          <div id="ox_image_browse_button_<%- data.id %>" class="fileinput-button form-buttons button browse-button">
+              <span><?php echo __('Browse Files...') ?></span>
+              <input id="ox_image_file_<%- data.id %>" type="file" name="image" data-url="<?php echo $this->getUploadUrl(); ?>"/>
+          </div>
+          <div class="clear"></div>
+          <div class="no-display" id="ox_image_uploader-template_<%- data.id %>">
+              <div id="{{id}}" class="file-row">
+                  <span class="file-info">{{name}}</span>
+                  <div class="progressbar-container">
+                      <div class="progressbar upload-progress" style="width: 0%;">&nbsp;</div>
+                  </div>
+                  <div class="clear"></div>
+              </div>
+          </div>
+      </div>              
+                  
+    </td>                  
+  </tr>
+ </script>   
+ <script type="text/javascript">
+//<![CDATA[
+    require([
+        'jquery',
+        'mage/template',
+        'jquery/ui',
+        'jquery/file-uploader',
+        'mage/translate',
+        'Pektsekye_OptionExtended/ox/pickerimage/edit'        
+    ], function ($) {
+
+      $('#pickerimage_container').pickerImages({
+        maxFileSize : <?php echo (int) $this->getFileSizeService()->getMaxFileSize() ?>,
+        maxWidth    : <?php echo (int) \Magento\Framework\File\Uploader::MAX_IMAGE_WIDTH ?>,
+        maxHeight   : <?php echo (int) \Magento\Framework\File\Uploader::MAX_IMAGE_HEIGHT ?>,  
+        lastImageId : <?php echo (int) $this->getLastImageId(); ?>, 
+        imagesData  : <?php echo $this->getImagesData(); ?>                     
+      });
+
+    });
+//]]> 
+</script> 
+  
+  
+  
+  

@@ -1,0 +1,42 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+// @codingStandardsIgnoreFile
+
+// 2019-01-05 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+// «Improve MediaClip module for Magento 2: add USPS shipping tracking URLs to emails»
+// https://www.upwork.com/ab/f/contracts/21337553
+
+use Magento\Framework\View\Element\Template as B;
+use Magento\Sales\Model\Order\Shipment;
+use Magento\Sales\Model\Order\Shipment\Track;
+use Magento\Shipping\Helper\Data as H;
+/** @var B $block */
+$_shipment = $block['shipment']; /** @var Shipment $_shipment */
+$_order = $block['order'];
+if ($_shipment && $_order && $_shipment->getAllTracks()) {
+	$h = $this->helper(H::class); /** @var H $h */
+?>
+<br />
+<table class="shipment-track">
+    <thead>
+        <tr>
+            <th><?= /* @escapeNotVerified */  __('Shipped By') ?></th>
+            <th><?= /* @escapeNotVerified */  __('Tracking Number') ?></th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($_shipment->getAllTracks() as $_item) {  /** @var Track $_item */
+		$url = $h->getTrackingPopupUrlBySalesModel($_item); /** @var string|null $url */
+		$n = $_item->getNumber(); /** @var string $n */
+	?>
+        <tr>
+            <td><?= $block->escapeHtml($_item->getTitle()) ?>:</td>
+            <td><?= !$url ? $block->escapeHtml($n) : df_tag_ab($n, $url) ?></td>
+        </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<?php } ?>

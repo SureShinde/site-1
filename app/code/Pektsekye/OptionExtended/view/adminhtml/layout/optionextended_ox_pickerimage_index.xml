@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head> 
+        <css src="Pektsekye_OptionExtended::ox/pickerimage/main.css"/>
+        <css src="jquery/fileUploader/css/jquery.fileupload-ui.css"/>                                                             
+    </head>
+    <referenceContainer name="content">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Ox\Pickerimage" name="optionextended.pickerimage"  template="ox/pickerimage.phtml"/>
+    </referenceContainer>
+</page>

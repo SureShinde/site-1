@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<page layout="admin-2columns-left" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <update handle="editor"/>
+    <head>
+        <css  src="Pektsekye_OptionExtended::optiontemplate/option/edit.css"/>
+        <link src="Pektsekye_OptionExtended::optiontemplate/option/edit.js"/>        
+        <css  src="jquery/fileUploader/css/jquery.fileupload-ui.css"/>
+      <!--  <link src="jquery/fileUploader/jquery.iframe-transport.js"/>
+        <link src="jquery/fileUploader/jquery.fileupload.js"/>
+        <link src="jquery/fileUploader/load-image.min.js"/>
+        <link src="jquery/fileUploader/canvas-to-blob.min.js"/>  
+        <link src="jquery/fileUploader/jquery.fileupload-fp.js"/>   
+        -->                                    
+    </head>     
+    <referenceContainer name="page.main.actions">
+        <block class="Magento\Backend\Block\Store\Switcher" name="category.store.switcher" template="Magento_Backend::store/switcher.phtml">
+            <!--<arguments>-->
+                <!--<argument name="switch_url" xsi:type="url" path="catalog/*/*">-->
+                    <!--<param name="_current" xsi:type="boolean">true</param>-->
+                    <!--<param name="_query" xsi:type="boolean">false</param>-->
+                    <!--<param name="store" xsi:type="null" />-->
+                <!--</argument>-->
+            <!--</arguments>-->
+        </block>
+    </referenceContainer>    
+    <referenceContainer name="left">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Option\Edit\Tabs" name="optiontemplate_option_tabs">
+            <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Option\Edit\Tab\Main" as="main"/>        
+            <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Option\Edit\Tab\Values" as="values"/>
+        </block>                     
+    </referenceContainer>    
+    <referenceContainer name="content">
+        <block class="Pektsekye\OptionExtended\Block\Adminhtml\Optiontemplate\Option\Edit" name="optiontemplate_option_edit"/>
+    </referenceContainer>
+    <referenceContainer name="js">
+        <block class="Magento\Framework\View\Element\Template" template="Magento_Catalog::catalog/wysiwyg/js.phtml" name="catalog.wysiwyg.js"/>
+    </referenceContainer>    
+    <referenceBlock name="head.components">
+        <block class="Magento\Framework\View\Element\Js\Components" name="catalog_category_page_head_components" template="Magento_Catalog::js/components.phtml"/>
+    </referenceBlock>    
+</page>

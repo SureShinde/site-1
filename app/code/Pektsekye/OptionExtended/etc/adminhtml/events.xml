@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config>
+    <event name="catalog_product_save_before">
+        <observer name="optionextended_save_product_state" instance="Pektsekye\OptionExtended\Model\Observer\ProductSaveBefore"/>
+    </event>
+    <event name="catalog_product_save_after">
+        <observer name="optionextended_save_optiontemplate" instance="Pektsekye\OptionExtended\Model\Observer\ProductSaveAfter"/>
+    </event>    
+    <event name="model_save_after">
+        <observer name="optionextended_save_option" instance="Pektsekye\OptionExtended\Model\Observer\OptionSaveAfter"/>
+    </event> 
+</config>

@@ -1,0 +1,57 @@
+<?php
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_FbPixel
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2018 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+
+$helper = $this->helper('Webkul\FbPixel\Helper\Data');
+$customer = $helper->getCustomer();
+$pixel_id = $helper->getPixelId();
+if ($pixel_id):
+	if ($customer->getId()): ?>
+		<script>
+			fbq('init', '<?php echo $pixel_id; ?>', {
+				em: '<?php echo $customer->getEmail(); ?>',
+			});
+		</script>
+	<?php else: ?>
+        <script>
+            fbq('init', '<?php echo $pixel_id; ?>');
+        </script>
+    <?php endif; ?>
+
+    <script>
+        fbq('init', '<?php echo $pixel_id; ?>');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<?php echo $pixel_id; ?>&ev=PageView&noscript=1"/></noscript>
+
+    <?php if ($helper->getConfigValue('addtocart')): ?>
+        <script>
+            require(['jquery'], function ($) {
+                $('body').on('click','.tocart',function() {
+                    fbq('track', 'AddToCart');
+                });
+            });
+        </script>
+    <?php endif; ?>
+    <?php if ($helper->getConfigValue('addtowishlist')): ?>
+        <script>
+            require(['jquery'], function ($) {
+                $('body').on('click','.towishlist',function() {
+                    fbq('track', 'AddToWishlist');
+                });
+            });
+        </script>
+    <?php endif; ?>
+    <?php if ($helper->getConfigValue('registration') && is_array($helper->isCustomerRegister())): ?>
+        <script>
+            fbq('track', 'CompleteRegistration');
+        </script>
+    <?php endif; ?>
+<?php endif; ?>

@@ -1,0 +1,20 @@
+<?php
+/**
+ * Webkul Software.
+ *
+ * @category  Webkul
+ * @package   Webkul_FbPixel
+ * @author    Webkul
+ * @copyright Copyright (c) 2010-2018 Webkul Software Private Limited (https://webkul.com)
+ * @license   https://store.webkul.com/license.html
+ */
+
+$helper = $this->helper('Webkul\FbPixel\Helper\Data');
+$pixel_id = $helper->getPixelId();
+if ($pixel_id & $helper->getConfigValue('search')): ?>
+    <script>
+        fbq('track', 'Search', {
+            query: '<?php echo $this->getRequest()->getParam('name'); ?>'
+        });
+    </script>
+<?php endif;
