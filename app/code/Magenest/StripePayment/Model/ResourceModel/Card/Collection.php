@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by Magenest.
- * Author: Pham Quang Hau
- * Date: 17/05/2016
- * Time: 15:13
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Model\ResourceModel\Card;

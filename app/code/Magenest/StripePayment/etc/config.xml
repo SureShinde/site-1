@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Store/etc/config.xsd">
@@ -14,7 +13,9 @@
                 <active>0</active>
                 <save>0</save>
                 <title>Stripe Card</title>
+                <display_payment_button>1</display_payment_button>
                 <three_d_secure>0</three_d_secure>
+                <force_d_secure>0</force_d_secure>
                 <order_status>processing</order_status>
                 <payment_action>authorize_capture</payment_action>
                 <active_moto>0</active_moto>
@@ -22,6 +23,7 @@
                 <cctypes>AE,VI,MC,DI,JCB</cctypes>
                 <useccv>1</useccv>
                 <allowspecific>0</allowspecific>
+                <https_check>0</https_check>
                 <model>Magenest\StripePayment\Model\StripePaymentMethod</model>
             </magenest_stripe>
 
@@ -31,7 +33,7 @@
                 <allow_bitcoin>0</allow_bitcoin>
                 <payment_action>authorize_capture</payment_action>
                 <allow_alipay>0</allow_alipay>
-                <collect_billing>1</collect_billing>
+                <collect_billing>0</collect_billing>
                 <collect_shipping>0</collect_shipping>
                 <order_status>processing</order_status>
                 <collect_zip>1</collect_zip>
@@ -45,8 +47,12 @@
             <magenest_stripe_applepay>
                 <active>0</active>
                 <title>Apple Pay, Google Pay, Microsoft Pay</title>
+                <active_on_product_details>1</active_on_product_details>
+                <active_on_shopping_cart>1</active_on_shopping_cart>
+                <active_on_checkout>1</active_on_checkout>
                 <payment_action>authorize_capture</payment_action>
                 <replace_placeorder>0</replace_placeorder>
+                <paybutton_label>Total Amount</paybutton_label>
                 <paybutton_type>default</paybutton_type>
                 <paybutton_theme>dark</paybutton_theme>
                 <order_status>processing</order_status>
@@ -84,7 +90,7 @@
                 <active>0</active>
                 <title>Stripe iDEAL</title>
                 <payment_action>authorize_capture</payment_action>
-                <use_element>0</use_element>
+                <use_element>1</use_element>
                 <allow_select_bank>1</allow_select_bank>
                 <model>Magenest\StripePayment\Model\Ideal</model>
             </magenest_stripe_ideal>
@@ -118,6 +124,42 @@
                 <payment_action>authorize_capture</payment_action>
                 <model>Magenest\StripePayment\Model\Multibanco</model>
             </magenest_stripe_multibanco>
+
+            <magenest_stripe_wechatpay>
+                <active>0</active>
+                <title>Stripe WeChat Pay</title>
+                <payment_action>authorize</payment_action>
+                <order_status>pending</order_status>
+                <model>Magenest\StripePayment\Model\WeChatPay</model>
+            </magenest_stripe_wechatpay>
+
+            <magenest_stripe_paymentintents>
+                <active>0</active>
+                <title>Stripe Payment Intents</title>
+                <payment_action>authorize_capture</payment_action>
+                <order_status>processing</order_status>
+                <cctypes>AE,VI,MC,DI,JCB</cctypes>
+                <model>Magenest\StripePayment\Model\PaymentIntents</model>
+                <allowspecific>0</allowspecific>
+            </magenest_stripe_paymentintents>
+
+            <magenest_stripe_sepa>
+                <active>0</active>
+                <title>Stripe SEPA Direct Debit</title>
+                <payment_action>authorize_capture</payment_action>
+                <instructions>By providing your IBAN and confirming this payment, you are authorizing YOUR COMPANY NAME and Stripe, our payment service provider, to send instructions to your bank to debit your account and your bank to debit your account in accordance with those instructions. You are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.</instructions>
+                <model>Magenest\StripePayment\Model\Sepa</model>
+            </magenest_stripe_sepa>
+
+            <magenest_stripe_checkout>
+                <active>0</active>
+                <title>Stripe Checkout</title>
+                <payment_action>authorize_capture</payment_action>
+                <allowspecific>0</allowspecific>
+                <model>Magenest\StripePayment\Model\StripeCheckout</model>
+                <checkout_title>Order Total</checkout_title>
+                <checkout_submit_type>pay</checkout_submit_type>
+            </magenest_stripe_checkout>
         </payment>
     </default>
 </config>

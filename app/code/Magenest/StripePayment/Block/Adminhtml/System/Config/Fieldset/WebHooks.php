@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hiennq
- * Date: 18/01/2018
- * Time: 13:05
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Block\Adminhtml\System\Config\Fieldset;
@@ -62,22 +62,30 @@ class WebHooks extends \Magento\Config\Block\System\Config\Form\Field
     protected function _getElementHtml(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         $html = (string)$this->webConfig();
-        if (strpos($html, 'success') !== false) {
-        } else {
-            $html = '<strong>' . $html . '</strong>';
-        }
-
         return $html;
     }
 
     protected function webConfig()
     {
-        $webhookUrl = $this->storeManager->getStore()->getBaseUrl()."stripe/checkout/webhooks";
-        $html = "<h2><a href='https://dashboard.stripe.com/account/webhooks' target='_blank'>Use webhooks to receive events from your account</a></h2>";
-        $html .= "<div class='input-url'>";
-        $html .= "<div><label for='endpoint_url'>Endpoint Url <input size='100' id='endpoint_url' type='text' readonly value='$webhookUrl'></label></div>";
-        $html .= "<p>SOFORT and Multibanco need to use webhooks to notify payment statuses</p>";
-        $html .= "</div>";
+        $webhookUrl = "{your magento url}/stripe/checkout/webhooks";
+        $webhookUrlSample = "";
+        try{
+            $webhookUrlSample = $this->storeManager->getStore()->getBaseUrl()."stripe/checkout/webhooks";
+        }catch (\Exception $e){
+        }
+        $html = "
+            <h2><a href='https://dashboard.stripe.com/account/webhooks' target='_blank'>".__("Use webhooks to receive events from your account")."</a></h2>
+            <div class='input-url'>
+                <div><label for='endpoint_url'>".__("URL to be called").": <p><strong type='text'>$webhookUrl</strong></p></label>
+                    <p><small>".__("Example").": $webhookUrlSample</small></p>
+                </div>
+                <p>List Events must add to webhooks response</p>
+                <ul>
+                    <li>For Stripe Checkout Integration: <strong>checkout.session.completed</strong></li>
+                    <li>For Another Stripe payment integration: <strong>All charge events and All source events</strong></li>
+                </ul>
+            </div>
+        ";
         return $html;
     }
 }

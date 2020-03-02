@@ -1,7 +1,6 @@
 <!--
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 -->
 
@@ -53,7 +52,7 @@
                               enable: isActive($parents),
                               value: creditCardNumber,
                               valueUpdate: 'keyup' "/>
-            <div class="mage-error" data-bind="attr: { for: getCode() + '_cc_number' }, visible: isCardNumberError" generated="true">Please check your card number</div>
+            <div class="mage-error" data-bind="attr: { for: getCode() + '_cc_number' }, visible: isCardNumberError" generated="true"><!-- ko i18n: 'Please check your card number.' --><!-- /ko --></div>
         </div>
     </div>
     <div class="field date required" data-bind="attr: {id: getCode() + '_cc_type_exp_div'}, css:{_error: isCardExpError}">
@@ -89,7 +88,7 @@
                     </div>
                 </div>
             </div>
-            <div class="mage-error" data-bind="attr: { for: getCode() + '_cc_type_exp_div' }, visible: isCardExpError" generated="true">Please check your card exp</div>
+            <div class="mage-error" data-bind="attr: { for: getCode() + '_cc_type_exp_div' }, visible: isCardExpError" generated="true"><!-- ko i18n: 'Please check your card exp'--><!-- /ko --></div>
         </div>
     </div>
     <!-- ko if: (hasVerification())-->
@@ -119,7 +118,7 @@
                      data-target="dropdown"
                      data-bind="html: getCvvImageHtml()"></div>
             </div>
-            <div class="mage-error" data-bind="attr: { for: getCode() + '_cc_cid' }, visible: isCardCcvError" generated="true">Please check your card ccv</div>
+            <div class="mage-error" data-bind="attr: { for: getCode() + '_cc_cid' }, visible: isCardCcvError" generated="true"><!-- ko i18n: 'Please check your card ccv'--><!-- /ko --></div>
         </div>
     </div>
     <!-- /ko -->

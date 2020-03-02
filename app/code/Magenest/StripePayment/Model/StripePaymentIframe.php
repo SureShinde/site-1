@@ -1,14 +1,15 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: joel
- * Date: 01/01/2017
- * Time: 00:08
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Model;
 
 use Magenest\StripePayment\Helper\Constant;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Payment\Model\Method\AbstractMethod;
 
 class StripePaymentIframe extends AbstractMethod
@@ -68,6 +69,14 @@ class StripePaymentIframe extends AbstractMethod
         $this->stripeLogger = $stripeLogger;
     }
 
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        if(!class_exists(\Stripe\Stripe::class)){
+            return false;
+        }
+        return \Magento\Payment\Model\Method\AbstractMethod::isAvailable($quote);
+    }
+
     public function validate()
     {
         return \Magento\Payment\Model\Method\AbstractMethod::validate();
@@ -85,7 +94,7 @@ class StripePaymentIframe extends AbstractMethod
             $sourceId = isset($response['id']) ? $response['id'] : false;
             $payType = isset($response['type']) ? $response['type'] : "";
             if ($payType != 'card') {
-                throw new \Exception(
+                throw new LocalizedException(
                     __("Operation not allowed")
                 );
             }
@@ -97,40 +106,51 @@ class StripePaymentIframe extends AbstractMethod
             );
         }
         $infoInstance->setAdditionalInformation('payment_token', $sourceId);
-
+        $infoInstance->setAdditionalInformation("stripe_uid", uniqid());
         return $this;
     }
 
     public function initialize($paymentAction, $stateObject)
     {
-        /**
-         * @var \Magento\Sales\Model\Order $order
-         */
-        $payment = $this->getInfoInstance();
-        $payment->setAdditionalInformation(Constant::ADDITIONAL_PAYMENT_ACTION, $paymentAction);
-        $order = $payment->getOrder();
-        $this->_debug("-------Stripe checkout.js init: orderid: " . $order->getIncrementId());
-        $stateObject->setIsNotified($order->getCustomerNoteNotify());
-        $amount = $order->getBaseGrandTotal();
-        $threeDSecureAction = $this->_config->getThreedsecure();
-        $threeDSecureVerify = $this->_config->getThreeDSecureVerify();
-        $threeDSecureVerify = explode(",", $threeDSecureVerify);
-        $threeDSecureStatus = $payment->getAdditionalInformation("three_d_secure");
-        //active 3d secure
-        if ($threeDSecureAction == 1) {
-            if (($threeDSecureStatus == "required") || (in_array($threeDSecureStatus, $threeDSecureVerify))) {
-                $this->stripeCard->perform3dSecure($payment, $amount);
+        try {
+            /**
+             * @var \Magento\Sales\Model\Order $order
+             */
+            $payment = $this->getInfoInstance();
+            $payment->setAdditionalInformation(Constant::ADDITIONAL_PAYMENT_ACTION, $paymentAction);
+            $order = $payment->getOrder();
+            $this->_debug("-------Function: initialize: orderid: " . $order->getIncrementId());
+            $stateObject->setIsNotified($order->getCustomerNoteNotify());
+            $amount = $order->getBaseGrandTotal();
+            $threeDSecureAction = $this->_config->getThreedsecure();
+            $threeDSecureVerify = $this->_config->getThreeDSecureVerify();
+            $threeDSecureVerify = explode(",", $threeDSecureVerify);
+            $threeDSecureStatus = $payment->getAdditionalInformation("three_d_secure");
+            $orderState = \Magento\Sales\Model\Order::STATE_PROCESSING;
+            $orderStatus = $this->getConfigData('order_status');
+            //active 3d secure
+            if ($threeDSecureAction == 1) {
+                if (($threeDSecureStatus == "required") || (in_array($threeDSecureStatus, $threeDSecureVerify))) {
+                    $this->stripeCard->perform3dSecure($payment, $amount);
+                } else {
+                    $this->stripeCard->placeOrder($payment, $amount, $paymentAction);
+                    $orderState = $order->getState() ? $order->getState() : $orderState;
+                    $orderStatus = $order->getStatus() ? $order->getStatus() : $orderStatus;
+                    $stateObject->setData('state', $orderState);
+                    $stateObject->setData('status', $orderStatus);
+                }
             } else {
-                $stateObject->setData('state', \Magento\Sales\Model\Order::STATE_PROCESSING);
                 $this->stripeCard->placeOrder($payment, $amount, $paymentAction);
+                $orderState = $order->getState() ? $order->getState() : $orderState;
+                $orderStatus = $order->getStatus() ? $order->getStatus() : $orderStatus;
+                $stateObject->setData('state', $orderState);
+                $stateObject->setData('status', $orderStatus);
             }
-        } else {
-            //not active
-            $stateObject->setData('state', \Magento\Sales\Model\Order::STATE_PROCESSING);
-            $this->stripeCard->placeOrder($payment, $amount, $paymentAction);
-        }
 
-        return parent::initialize($paymentAction, $stateObject);
+            return parent::initialize($paymentAction, $stateObject);
+        }catch (\Stripe\Error\Base $e) {
+            throw new LocalizedException(__($e->getMessage()));
+        }
     }
 
     /**

@@ -1,13 +1,14 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hiennq
- * Date: 26/12/2017
- * Time: 17:59
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Model;
 
+use Magenest\StripePayment\Exception\StripePaymentException;
 use Magenest\StripePayment\Helper\Constant;
 use Magento\Payment\Model\Method\AbstractMethod;
 use Magento\Framework\Exception\LocalizedException;
@@ -87,37 +88,24 @@ class Multibanco extends AbstractMethod
          * @var \Magento\Sales\Model\Order $order
          */
         try{
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            if(!class_exists(\Stripe\Stripe::class)){
+                throw new StripePaymentException(
+                    __("Stripe PHP library was not installed")
+                );
+            }
+            $this->stripeHelper->initStripeApi();
             $payment = $this->getInfoInstance();
             $order = $payment->getOrder();
-            $grandTotal = $order->getBaseGrandTotal();
-            $baseCurrency = strtolower($order->getBaseCurrencyCode());
-            if (!$this->stripeHelper->isZeroDecimal($baseCurrency)) {
-                $grandTotal = $grandTotal*100;
-            }
-            $billingAddress = $order->getBillingAddress();
             $returnUrl = $this->storeManager->getStore()->getBaseUrl() . "stripe/checkout_multibanco/response";
-            $request = [
-                "type" => "multibanco",
-                "amount" => round($grandTotal),
-                "currency" => $baseCurrency,
-                "redirect" => [
-                    "return_url" => $returnUrl
-                ],
-                'owner'=>[
-                    'name' => $billingAddress->getName(),
-                    'email' => $billingAddress->getEmail(),
-                    'phone' => $billingAddress->getTelephone(),
-                    'address' => [
-                        'city' => $billingAddress->getCity(),
-                        'country' => $billingAddress->getCountryId(),
-                        'line1' => $billingAddress->getStreetLine(1),
-                        'line2' => $billingAddress->getStreetLine(2),
-                        'postal_code' => $billingAddress->getPostcode(),
-                        'state' => $billingAddress->getRegion()
-                    ]
+            $request = $this->stripeHelper->getPaymentSource($order, "multibanco");
+            $request = array_merge(
+                $request,
+                [
+                    "redirect" => [
+                        "return_url" => $returnUrl
+                    ],
                 ]
-            ];
+            );
             $source = Stripe\Source::create($request);
             $this->_debug($source->getLastResponse()->json);
             $redirectUrl = $source->redirect->url;
@@ -137,7 +125,11 @@ class Multibanco extends AbstractMethod
             $payment->setAdditionalInformation("stripe_source_id", $sourceId);
             $payment->setAdditionalInformation("stripe_redirect_url", $redirectUrl);
             return parent::initialize($paymentAction, $stateObject);
-        }catch (\Stripe\Error\Base $e){
+        }
+        catch (\Stripe\Error\Base $e){
+            throw new LocalizedException(__($e->getMessage()));
+        }
+        catch (StripePaymentException $e){
             throw new LocalizedException(__($e->getMessage()));
         }
     }
@@ -150,16 +142,22 @@ class Multibanco extends AbstractMethod
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         try{
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            $this->stripeHelper->initStripeApi();
             $order = $payment->getOrder();
             $sourceId = $payment->getAdditionalInformation("stripe_source_id");
             $chargeRequest = $this->stripeHelper->createChargeRequest($order, $amount, $sourceId);
-            $charge = Stripe\Charge::create($chargeRequest);
+            $uid = $payment->getAdditionalInformation("stripe_uid");
+            $charge = \Stripe\Charge::create($chargeRequest, [
+                "idempotency_key" => $uid
+            ]);
+            $stripeAmount = $charge->amount;
+            $this->stripeHelper->checkTransaction($payment, $stripeAmount);
             $this->_debug($charge->getLastResponse()->json);
             $chargeId = $charge->id;
             $payment->setAdditionalInformation("stripe_charge_id", $chargeId);
             $chargeStatus = $charge->status;
             if($chargeStatus == 'succeeded'){
+                $order->setCanSendNewEmailFlag(true);
                 $transactionId = $charge->balance_transaction;
                 $payment->setTransactionId($transactionId)
                     ->setLastTransId($transactionId);
@@ -172,7 +170,11 @@ class Multibanco extends AbstractMethod
             }
             return parent::capture($payment, $amount);
         }catch (\Stripe\Error\Base $e){
-            throw new LocalizedException(__($e->getMessage()));
+            if($e->getStripeCode() == 'idempotency_key_in_use'){
+                throw new \Magenest\StripePayment\Exception\StripePaymentDuplicateException(__($e->getMessage()));
+            }else {
+                throw new LocalizedException(__($e->getMessage()));
+            }
         }
     }
 
@@ -184,7 +186,7 @@ class Multibanco extends AbstractMethod
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         try {
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            $this->stripeHelper->initStripeApi();
             $chargeId = $payment->getAdditionalInformation("stripe_charge_id");
             $refundReason = $this->request->getParam('refund_reason');
             $request = $this->stripeHelper->createRefundRequest($payment, $chargeId, $amount);

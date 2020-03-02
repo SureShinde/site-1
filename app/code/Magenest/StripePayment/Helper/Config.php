@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: joel
- * Date: 13/10/2016
- * Time: 23:55
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Helper;
@@ -31,8 +31,8 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     public function getIsSandboxMode()
     {
         return $this->scopeConfig->getValue(
-            'payment/magenest_stripe/test',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            'payment/magenest_stripe/test'
+
         );
     }
 
@@ -63,8 +63,7 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     public function getConfigValue($value)
     {
         $configValue = $this->scopeConfig->getValue(
-            'payment/magenest_stripe/' . $value,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            'payment/magenest_stripe/' . $value
         );
 
         return $this->_encryptor->decrypt($configValue);
@@ -195,10 +194,15 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
-    public function getInstructions()
+    public function getInstructions($payment = "")
     {
+        if ($payment){
+            $path = 'payment/magenest_stripe' . '_' . $payment . '/instructions';
+        }else{
+            $path = 'payment/magenest_stripe/instructions';
+        }
         return preg_replace('/\s+|\n+|\r/', ' ', $this->scopeConfig->getValue(
-            'payment/magenest_stripe/instructions',
+            $path,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         ));
     }
@@ -206,8 +210,7 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     public function sendMailCustomer()
     {
         return $this->scopeConfig->getValue(
-            'payment/magenest_stripe/email_customer',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            'payment/magenest_stripe/email_customer'
         );
     }
 
@@ -227,23 +230,43 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
         );
     }
 
+    public function getDisplayPaymentButton()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe/display_payment_button',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
     public function getThreeDSecure()
     {
         return $this->scopeConfig->getValue(
-            'payment/magenest_stripe/three_d_secure',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            'payment/magenest_stripe/three_d_secure'
+        );
+    }
+
+    public function getForceThreeDSecure()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe/force_d_secure'
         );
     }
 
     public function getThreeDSecureVerify()
     {
         return $this->scopeConfig->getValue(
-            'payment/magenest_stripe/three_d_secure_verify',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+            'payment/magenest_stripe/three_d_secure_verify'
         );
     }
 
     //apple pay config
+    public function isApplePayActive(){
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_applepay/active',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
     public function getReplacePlaceOrder()
     {
         return $this->scopeConfig->getValue(
@@ -262,6 +285,34 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             'payment/magenest_stripe_applepay/paybutton_type',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+    public function getApplepayButtonLabel()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_applepay/paybutton_label',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+    public function getActiveOnCart()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_applepay/active_on_shopping_cart',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+    public function getActiveOnProductDetail()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_applepay/active_on_product_details',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+    public function getActiveOnCheckout()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_applepay/active_on_checkout',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
@@ -368,4 +419,84 @@ class Config extends \Magento\Framework\App\Helper\AbstractHelper
     ///
     ///
     /// /////////Bancontact CONFIG///////////////
+    ///
+
+    /////////Stripe checkout CONFIG///////////////
+    ///
+    ///
+    ///
+    ///
+
+    public function isStripeCheckoutCollectBilling()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_checkout/collect_billing_address',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getStripeCheckoutPaymentAction()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_checkout/payment_action',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getStripeCheckoutTitle()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_checkout/checkout_title',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getStripeCheckoutDescription()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_checkout/checkout_description',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getStripeCheckoutImageUrl()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_checkout/checkout_image_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getStripeCheckoutSubmitType()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_checkout/checkout_submit_type',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    ///
+    ///
+    ///
+    ///
+    /// /////////Stripe checkout CONFIG///////////////
+
+    public function getScopeConfig(){
+        return $this->scopeConfig;
+    }
+
+    public function getStatementDescriptor(){
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe/statement_descriptor',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    public function getStripeIntentPaymentAction()
+    {
+        return $this->scopeConfig->getValue(
+            'payment/magenest_stripe_paymentintents/payment_action',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
 }

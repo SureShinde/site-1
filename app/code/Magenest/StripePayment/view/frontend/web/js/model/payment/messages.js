@@ -1,9 +1,5 @@
 /**
- * Created by magenest on 2/27/17.
- */
-/**
- * Copyright © 2016 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 define(
     [

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 15:02
+ */
 
 namespace Magenest\StripePayment\Controller\Checkout\Multibanco;
 

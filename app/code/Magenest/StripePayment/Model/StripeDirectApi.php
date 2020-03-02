@@ -1,13 +1,15 @@
 <?php
 /**
- * Created by Magenest.
- * Author: Pham Quang Hau
- * Date: 11/05/2016
- * Time: 13:33
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
+
 namespace Magenest\StripePayment\Model;
 
 use Magenest\StripePayment\Helper\Constant;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Registry;
 use Magento\Framework\Api\ExtensionAttributesFactory;
@@ -18,6 +20,7 @@ use Magento\Payment\Model\Method\Logger;
 use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magenest\StripePayment\Helper\Data as DataHelper;
+use Stripe\Stripe;
 
 class StripeDirectApi extends \Magento\Payment\Model\Method\Cc
 {
@@ -32,9 +35,9 @@ class StripeDirectApi extends \Magento\Payment\Model\Method\Cc
     protected $_canAuthorize = true;
 
     protected $_helper;
-    public $stripeLogger;
+    protected $stripeLogger;
     protected $stripeCard;
-    protected $_messageManager;
+    protected $stripeConfig;
 
     public function __construct(
         Context $context,
@@ -48,15 +51,14 @@ class StripeDirectApi extends \Magento\Payment\Model\Method\Cc
         TimezoneInterface $localeDate,
         DataHelper $dataHelper,
         \Magenest\StripePayment\Helper\Logger $stripeLogger,
-        \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magenest\StripePayment\Model\StripePaymentMethod $stripePaymentMethod,
+        \Magenest\StripePayment\Helper\Config $stripeConfig,
         $data = []
     ) {
         $this->_helper = $dataHelper;
         $this->stripeLogger = $stripeLogger;
-        $this->_messageManager = $messageManager;
         $this->stripeCard = $stripePaymentMethod;
-
+        $this->stripeConfig = $stripeConfig;
         parent::__construct(
             $context,
             $registry,
@@ -79,7 +81,15 @@ class StripeDirectApi extends \Magento\Payment\Model\Method\Cc
         $additionalData = $data->getData('additional_data');
         parent::assignData($data);
         if ($this->_appState->getAreaCode() == 'adminhtml') {
-            $sourceId = isset($additionalData['source_id'])?$additionalData['source_id']:"";
+            $stripeResponse = isset($additionalData['stripe_response']) ? $additionalData['stripe_response'] : "";
+            $response = json_decode($stripeResponse, true);
+            $customerId = isset($additionalData['customer_id'])?$additionalData['customer_id']:"";
+            $cardId = isset($additionalData['cardId'])?$additionalData['cardId']:"";
+            if ($response) {
+                $sourceId = isset($response['id']) ? $response['id'] : false;
+            }else{
+                $sourceId = $this->stripeCard->addPaymentInfoData($this->getInfoInstance(), $cardId, $customerId);
+            }
             $customerId = isset($additionalData['customer_id'])?$additionalData['customer_id']:"";
             $infoInstance->setAdditionalInformation('source_id', $sourceId);
             $infoInstance->setAdditionalInformation('customer_id', $customerId);
@@ -94,90 +104,65 @@ class StripeDirectApi extends \Magento\Payment\Model\Method\Cc
 
     public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        $this->_debug("authorize action");
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $payment->getOrder();
-        $paymentToken = $this->_helper->getDirectSource($order);
-        $dbSource = $payment->getAdditionalInformation('db_source');
-        $customerId = $payment->getAdditionalInformation('customer_id');
-        $stripeCustomerId = $this->_helper->getStripeCustomerId($customerId);
-        $request = $this->_helper->createChargeRequest($order, $amount, $paymentToken, false, $dbSource, $stripeCustomerId);
-        $url = 'https://api.stripe.com/v1/charges';
-        $response = $this->_helper->sendRequest($request, $url, null);
-        if (isset($response['error'])) {
-            $this->_messageManager->addErrorMessage("Message: ".$response['error']['message']);
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('Payment error')
-            );
-        }
-        if (isset($response['status']) && ($response['status'] == 'succeeded')) {
-            $payment->setAmount($amount);
-            $payment->setTransactionId($response['id'])
+        try {
+            $this->_helper->initStripeApi();
+            $this->_debug("authorize action");
+            /** @var \Magento\Sales\Model\Order $order */
+            $order = $payment->getOrder();
+            $paymentToken = $this->_helper->getDirectSource($order);
+            $dbSource = $payment->getAdditionalInformation('db_source');
+            $request = $this->_helper->createChargeRequest($order, $amount, $paymentToken, false, $dbSource,
+                null);
+            $charge = \Stripe\Charge::create($request);
+            $stripeAmount = $charge->amount;
+            $this->_helper->checkTransaction($payment, $stripeAmount);
+            $this->_debug($charge->getLastResponse()->json);
+            $payment->setTransactionId($charge->id)
                 ->setIsTransactionClosed(false)
                 ->setShouldCloseParentTransaction(false)
-                ->setCcTransId($response['id']);
-
-        } else {
-            throw new \Magento\Framework\Exception\LocalizedException(
-                __('Something went wrong. Please try again later.')
-            );
+                ->setCcTransId($charge->id);
+            $payment->setAdditionalInformation("stripe_charge_id", $charge->id);
+        }
+        catch (\Stripe\Error\Base $e) {
+            throw new LocalizedException(__($e->getMessage()));
         }
     }
 
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
-        $this->_debug("capture action");
-        /** @var \Magento\Sales\Model\Order $order */
-        $order = $payment->getOrder();
-        $transId = $payment->getCcTransId();
-        if ($transId) {
-            $url = Constant::CHARGE_ENDPOINT.'/' . $transId . '/capture';
-            $request = $this->_helper->createCaptureRequest($order, $amount);
-            $response = $this->_helper->sendRequest($request, $url, null);
-            $this->_debug($response);
-            if (isset($response['error'])) {
-                $this->_messageManager->addErrorMessage("Message: ".$response['error']['message']);
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('Payment error')
-                );
-            }
-            if (isset($response['status'])&&($response['status'] == 'succeeded')) {
-                $transactionId = isset($response['balance_transaction'])?$response['balance_transaction']:"";
+        try {
+            $this->_helper->initStripeApi();
+            $this->_debug("capture action");
+            /** @var \Magento\Sales\Model\Order $order */
+            $order = $payment->getOrder();
+            $chargeId = $payment->getAdditionalInformation("stripe_charge_id");
+            if ($chargeId) {
+                $charge = \Stripe\Charge::retrieve($chargeId);
+                $request = $this->_helper->createCaptureRequest($order, $amount);
+                $charge->capture($request);
+                $transactionId = $charge->balance_transaction;
                 $payment->setStatus(\Magento\Payment\Model\Method\AbstractMethod::STATUS_SUCCESS)
-                    ->setShouldCloseParentTransaction(1)
-                    ->setIsTransactionClosed(1);
-                $payment->setTransactionId($transactionId);
+                    ->setShouldCloseParentTransaction(true)
+                    ->setIsTransactionClosed(true)
+                    ->setTransactionId($transactionId);
             } else {
-                throw new \Magenest\StripePayment\Exception\StripePaymentException(
-                    __('Capture fail')
-                );
-            }
-        } else {
-            $paymentToken = $this->_helper->getDirectSource($order);
-            $dbSource = $payment->getAdditionalInformation('db_source');
-            $customerId = $payment->getAdditionalInformation('customer_id');
-            $stripeCustomerId = $this->_helper->getStripeCustomerId($customerId);
-            $request = $this->_helper->createChargeRequest($order, $amount, $paymentToken, true, $dbSource, $stripeCustomerId);
-            $url = 'https://api.stripe.com/v1/charges';
-            $response = $this->_helper->sendRequest($request, $url, null);
-            if (isset($response['error'])) {
-                $this->_messageManager->addErrorMessage("Message: ".$response['error']['message']);
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('Payment error')
-                );
-            }
-            if (isset($response['status']) && ($response['status'] == 'succeeded')) {
-                $payment->setAmount($amount);
-                $payment->setTransactionId($response['id'])
+                $paymentToken = $this->_helper->getDirectSource($order);
+                $dbSource = $payment->getAdditionalInformation('db_source');
+                $request = $this->_helper->createChargeRequest($order, $amount, $paymentToken, true, $dbSource,
+                    null);
+                $charge = \Stripe\Charge::create($request);
+                $stripeAmount = $charge->amount;
+                $this->_helper->checkTransaction($payment, $stripeAmount);
+                $payment->setTransactionId($charge->balance_transaction)
                     ->setIsTransactionClosed(false)
                     ->setShouldCloseParentTransaction(false)
-                    ->setCcTransId($response['id']);
-
-            } else {
-                throw new \Magento\Framework\Exception\LocalizedException(
-                    __('Something went wrong. Please try again later.')
-                );
+                    ->setCcTransId($charge->id);
+                $this->_debug($charge->getLastResponse()->json);
+                $payment->setAdditionalInformation("stripe_charge_id", $charge->id);
             }
+        }
+        catch (\Stripe\Error\Base $e) {
+            throw new LocalizedException(__($e->getMessage()));
         }
     }
 
@@ -216,6 +201,9 @@ class StripeDirectApi extends \Magento\Payment\Model\Method\Cc
 
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        if(!class_exists(\Stripe\Stripe::class)){
+            return false;
+        }
         return \Magento\Payment\Model\Method\AbstractMethod::isAvailable($quote);
     }
 

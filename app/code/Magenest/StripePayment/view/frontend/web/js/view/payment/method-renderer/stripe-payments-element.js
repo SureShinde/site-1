@@ -1,6 +1,5 @@
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 /*browser:true*/
 /*global define*/
@@ -18,6 +17,7 @@ define(
         'Magento_Checkout/js/action/set-billing-address',
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/url',
+        'mage/translate',
         'mage/cookies'
     ],
     function (Component,
@@ -31,11 +31,15 @@ define(
               setPaymentInformationAction,
               setBillingAddressAction,
               additionalValidators,
-              url
+              url,
+              $t
     ) {
         'use strict';
 
-        var stripe, elements, card;
+        var stripe, elements, card, paymentRequest;
+        var totals = quote.totals(),
+            zeroDecimal = window.checkoutConfig.payment.magenest_stripe_config.isZeroDecimal,
+            currency = totals.base_currency_code;
 
         return Component.extend({
             defaults: {
@@ -49,7 +53,9 @@ define(
                 hasCard: window.checkoutConfig.payment.magenest_stripe.hasCard,
                 saveCardOption: "",
                 source: "",
-                showPaymentField: ko.observable(false)
+                showPaymentField: ko.observable(false),
+                displayPaymentButton: window.checkoutConfig.payment.magenest_stripe.display_payment_button
+                                    && (window.checkoutConfig.payment.magenest_stripe.api === "v3"),
             },
             messageContainer: messageContainer,
 
@@ -57,14 +63,14 @@ define(
                 var self = this;
                 this._super();
                 this.isSelectCard = ko.computed(function () {
-                    if ((typeof self.cardId() !== 'undefined')&&(self.hasCard)){
+                    if (self.cardId() && self.hasCard){
                         return true;
                     }else{
                         return false;
                     }
                 }, this);
                 this.showPaymentField = ko.computed(function () {
-                    if((this.saveCardConfig === "0") || !this.isSelectCard()){
+                    if((!this.saveCardConfig) || !this.isSelectCard()){
                         return true;
                     }
                 }, this);
@@ -72,8 +78,9 @@ define(
             },
 
             initStripe: function() {
-                var self = this;
-                this.loadStripeApi(function () {
+                if (this.validate()) {
+                    stripe = Stripe(window.checkoutConfig.payment.magenest_stripe_config.publishableKey);
+                    var self = this;
                     var style = {
                         base: {
                             color: '#32325d',
@@ -100,29 +107,16 @@ define(
                         }
                     });
 
-                    card.mount('#'+self.getCode()+'-card-element');
-                    card.addEventListener('change', function(event) {
-                        var displayError = document.getElementById(self.getCode()+'-card-errors');
+                    card.mount('#' + self.getCode() + '-card-element');
+                    card.addEventListener('change', function (event) {
+                        var displayError = document.getElementById(self.getCode() + '-card-errors');
                         if (event.error) {
                             displayError.textContent = event.error.message;
                         } else {
                             displayError.textContent = '';
                         }
                     });
-                });
-            },
-            loadStripeApi: function (callback) {
-                var script = document.createElement('script');
-                script.onload = function () {
-                    stripe = Stripe(window.checkoutConfig.payment.magenest_stripe_config.publishableKey);
-                    callback();
-                };
-                script.onerror = function (response) {
-                    console.log("stripe js v3 load error");
-                    console.log(response);
-                };
-                script.src = "https://js.stripe.com/v3/";
-                document.head.appendChild(script);
+                }
             },
 
             placeOrder: function (data, event) {
@@ -144,7 +138,7 @@ define(
                             country: address.countryId,
                             state: address.region
                         },
-                        email: (customer.customerData.email===null)?quote.guestEmail:customer.customerData.email
+                        email: (!customer.customerData.email)?quote.guestEmail:customer.customerData.email
                     }
                 };
                 if (address.telephone) {
@@ -191,7 +185,7 @@ define(
             afterPlaceOrder: function () {
                 var self = this;
                 $.post(
-                    url.build("stripe/checkout/threedSecure"),
+                    url.build("stripe/checkout_secure/redirect"),
                     {
                         form_key: $.cookie('form_key')
                     },
@@ -244,15 +238,23 @@ define(
 
             validate: function() {
                 var self = this;
+                if(window.checkoutConfig.payment.magenest_stripe_config.https_check){
+                    if (window.location.protocol !== "https:") {
+                        self.messageContainer.addErrorMessage({
+                            message: $.mage.__("Error: HTTPS is not enabled")
+                        });
+                        return false;
+                    }
+                }
                 if(window.checkoutConfig.payment.magenest_stripe_config.publishableKey===""){
                     self.messageContainer.addErrorMessage({
-                        message: "No API key provided."
+                        message: $.mage.__("No API key provided.")
                     });
                     return false;
                 }
                 if (typeof Stripe === "undefined"){
                     self.messageContainer.addErrorMessage({
-                        message: "Stripe js load error"
+                        message: $.mage.__("Stripe js load error")
                     });
                     return false;
                 }
@@ -262,6 +264,100 @@ define(
 
             getInstructions: function () {
                 return window.checkoutConfig.payment.magenest_stripe.instructions;
+            },
+
+            requestPayment: function () {
+                if (this.validate()) {
+                    var self = this;
+                    stripe = Stripe(window.checkoutConfig.payment.magenest_stripe_config.publishableKey);
+                    var amount = totals.base_grand_total;
+                    if (zeroDecimal === '0') {
+                        amount *= 100;
+                    }
+                    paymentRequest = stripe.paymentRequest({
+                        country: window.checkoutConfig.payment.magenest_stripe_config.country_code,
+                        currency: currency.toLowerCase(),
+                        total: {
+                            label: $t('Shopping Cart'),
+                            amount: Math.round(amount),
+                            pending: true
+                        },
+                        displayItems: self.getDisplayItems(),
+                        requestPayerName: true,
+                        requestPayerEmail: true,
+                    });
+
+                    var elements = stripe.elements();
+                    var prButton = elements.create('paymentRequestButton', {
+                        paymentRequest: paymentRequest,
+                        style: {
+                            paymentRequestButton: {
+                                type: window.checkoutConfig.payment.magenest_stripe_applepay.button_type,
+                                theme: window.checkoutConfig.payment.magenest_stripe_applepay.button_theme,
+                                height: '40px'
+                            }
+                        }
+                    });
+                    // Check the availability of the Payment Request API first.
+                    paymentRequest.canMakePayment().then(function (result) {
+                        console.log(result);
+                        if (result) {
+                            prButton.mount('#payment_section_element');
+                        } else {
+                            document.getElementById('payment_section_element').style.display = 'none';
+                        }
+                    });
+
+                    paymentRequest.on('token', function (ev) {
+                        // Send the token to your server to charge it!
+                        self.source = ev.token;
+                        self.saveCardOption = 0;
+                        self.cardId(0);
+                        self.getPlaceOrderDeferredObject()
+                            .fail(function () {
+                                ev.complete('fail');
+                            })
+                            .done(function () {
+                                    ev.complete('success');
+                                    redirectOnSuccessAction.execute();
+                                }
+                            );
+                    });
+
+                    quote.getTotals().subscribe(function (value) {
+                        var amount = value.base_grand_total;
+                        if (zeroDecimal === '0') {
+                            amount *= 100;
+                        }
+                        paymentRequest.update({
+                            currency: currency.toLowerCase(),
+                            total: {
+                                label: $t('Shopping Cart'),
+                                amount: Math.round(amount),
+                                pending: true
+                            },
+                            displayItems: self.getDisplayItems(),
+                        });
+                    });
+                }
+            },
+
+            getDisplayItems: function () {
+                var arr = [];
+                var items = quote.getItems();
+                var amount;
+                items.forEach(function (v ,i) {
+                    amount = v.row_total;
+                    if(zeroDecimal === '0'){
+                        amount*=100;
+                    }
+                    arr.push({
+                        amount: Math.round(amount),
+                        label: v.name,
+                        pending: true
+                    })
+                });
+                return arr;
             }
         });
 

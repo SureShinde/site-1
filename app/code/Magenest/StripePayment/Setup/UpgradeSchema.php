@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by Magenest.
- * Author: Pham Quang Hau
- * Date: 12/07/2016
- * Time: 15:00
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Setup;
@@ -135,7 +135,36 @@ class UpgradeSchema implements UpgradeSchemaInterface
             $this->addSourceTable($setup);
         }
 
+        if (version_compare($context->getVersion(), '2.2.1') < 0) {
+            $this->alterStripeSourceTable($setup);
+        }
+
         $setup->endSetup();
+    }
+
+    private function alterStripeSourceTable($setup){
+        $setup->getConnection()
+            ->addColumn(
+                $setup->getTable('magenest_stripe_source'),
+                'quote_id',
+                [
+                    'type' => \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                    'length' => null,
+                    'comment' => 'Quote id',
+                    'nullable' => true,
+                ]
+            );
+        $setup->getConnection()->changeColumn(
+            $setup->getTable('magenest_stripe_source'),
+            'order_id',
+            'order_id',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'length' => 10,
+                'nullable' => true,
+                'comment' => 'Order ID'
+            ]
+        );
     }
 
     private function addSourceTable($setup){

@@ -1,6 +1,5 @@
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 /*browser:true*/
 /*global define*/
@@ -16,7 +15,8 @@ define(
         'Magento_Ui/js/model/messages',
         'Magento_Checkout/js/model/payment/additional-validators',
         'mage/url',
-        'mage/cookies'
+        'mage/cookies',
+        'mage/translate',
     ],
     function (Component, $,ko, quote,customer, fullScreenLoader, redirectOnSuccessAction, messageContainer, additionalValidators, url) {
         'use strict';
@@ -44,14 +44,14 @@ define(
                 var self = this;
                 this._super();
                 this.isSelectCard = ko.computed(function () {
-                    if ((typeof self.cardId() !== 'undefined')&&(self.hasCard)){
+                    if (self.cardId() && self.hasCard){
                         return true;
                     }else{
                         return false;
                     }
                 }, this);
                 this.showPaymentField = ko.computed(function () {
-                    if((this.saveCardConfig === "0") || !this.isSelectCard()){
+                    if((!this.saveCardConfig) || !this.isSelectCard()){
                         return true;
                     }
                 }, this);
@@ -60,22 +60,7 @@ define(
 
             initialize: function () {
                 this._super();
-                if (typeof Stripe === "undefined")
-                {
-                    var script = document.createElement('script');
-                    script.onload = function() {
-                        Stripe.setPublishableKey(window.checkoutConfig.payment.magenest_stripe_config.publishableKey);
-                    };
-                    script.onerror = function(response) {
-                        console.log("stripe js v2 load error");
-                        console.log(response);
-                    };
-                    script.src = "https://js.stripe.com/v2/";
-                    document.head.appendChild(script);
-                }
-                else {
-                    Stripe.setPublishableKey(window.checkoutConfig.payment.magenest_stripe_config.publishableKey);
-                }
+                Stripe.setPublishableKey(window.checkoutConfig.payment.magenest_stripe_config.publishableKey);
             },
 
             placeOrder: function(data, event) {
@@ -99,7 +84,7 @@ define(
                                 state: address.region
                             },
                             name: firstName + " " + lastName,
-                            email: (customer.customerData.email === null) ? quote.guestEmail : customer.customerData.email
+                            email: (!customer.customerData.email) ? quote.guestEmail : customer.customerData.email
                         };
 
                         if (address.telephone) {
@@ -158,15 +143,23 @@ define(
 
             validate: function() {
                 var self = this;
+                if(window.checkoutConfig.payment.magenest_stripe_config.https_check){
+                    if (window.location.protocol !== "https:") {
+                        self.messageContainer.addErrorMessage({
+                            message: $.mage.__("Error: HTTPS is not enabled")
+                        });
+                        return false;
+                    }
+                }
                 if(window.checkoutConfig.payment.magenest_stripe_config.publishableKey===""){
                     self.messageContainer.addErrorMessage({
-                        message: "No API key provided."
+                        message: $.mage.__("No API key provided.")
                     });
                     return false;
                 }
                 if (typeof Stripe === "undefined"){
                     self.messageContainer.addErrorMessage({
-                        message: "Stripe js load error"
+                        message: $.mage.__("Stripe js load error")
                     });
                     return false;
                 }
@@ -204,6 +197,7 @@ define(
                 this.getPlaceOrderDeferredObject()
                     .fail(
                         function () {
+                            fullScreenLoader.stopLoader(true);
                             self.isPlaceOrderActionAllowed(true);
                         }
                     ).done(
@@ -220,7 +214,7 @@ define(
             afterPlaceOrder: function () {
                 var self = this;
                 $.post(
-                    url.build("stripe/checkout/threedSecure"),
+                    url.build("stripe/checkout_secure/redirect"),
                     {
                         form_key: $.cookie('form_key')
                     },

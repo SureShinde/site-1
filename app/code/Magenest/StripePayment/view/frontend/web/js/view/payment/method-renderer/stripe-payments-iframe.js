@@ -1,5 +1,5 @@
 /**
- * Created by joel on 31/12/2016.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 /*browser:true*/
 /*global define*/
@@ -7,7 +7,7 @@ define(
     [
         'jquery',
         'ko',
-        'Magento_Checkout/js/view/payment/default',
+        'Magenest_StripePayment/js/view/payment/default',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/quote',
@@ -17,8 +17,8 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Ui/js/model/messages',
         'mage/url',
-        'https://js.stripe.com/v2/',
-        'mage/cookies'
+        'mage/cookies',
+        'mage/translate',
     ],
     function ($,
               ko,
@@ -109,9 +109,8 @@ define(
                         name: displayName,
                         amount: amount,
                         currency: totals.base_currency_code,
-                        email: customer.customerData.email,
-                        billingAddress: canCollectBilling,
-                        shippingAddress: canCollectShipping,
+                        email: (!customer.customerData.email) ? quote.guestEmail : customer.customerData.email,
+                        billingAddress: false,
                         locale: locale,
                         zipCode: canCollectZipCode,
                         image: image,
@@ -164,7 +163,7 @@ define(
                             }else{
                                 self.isPlaceOrderActionAllowed(true);
                                 self.messageContainer.addErrorMessage({
-                                    message: "Operation not allowed"
+                                    message: $.mage.__("Operation not allowed")
                                 });
                                 // self.api_response = response;
                                 // self.realPlaceOrder();
@@ -191,6 +190,7 @@ define(
                 this.getPlaceOrderDeferredObject()
                     .fail(
                         function () {
+                            fullScreenLoader.stopLoader(true);
                             self.isPlaceOrderActionAllowed(true);
                         }
                     ).done(
@@ -207,7 +207,8 @@ define(
             afterPlaceOrder: function () {
                 var self = this;
                 $.post(
-                    url.build("stripe/checkout/threedSecure"),
+                    // url.build("stripe/checkout/threedSecure"),
+                    url.build("stripe/checkout_secure/redirect"),
                     {
                         form_key: $.cookie('form_key')
                     },
@@ -237,24 +238,6 @@ define(
                 return true;
             },
 
-            validate: function() {
-                var self = this;
-                if(window.checkoutConfig.payment.magenest_stripe_config.publishableKey===""){
-                    self.messageContainer.addErrorMessage({
-                        message: "No API key provided."
-                    });
-                    return false;
-                }
-                if (typeof StripeCheckout === "undefined"){
-                    self.messageContainer.addErrorMessage({
-                        message: "Stripe checkout load error"
-                    });
-                    return false;
-                }
-
-                return true;
-            },
-
             getData: function() {
                 return {
                     'method': this.item.method,
@@ -262,6 +245,10 @@ define(
                         "stripe_response": JSON.stringify(this.api_response)
                     }
                 }
+            },
+
+            getInstructions: function () {
+                return window.checkoutConfig.payment.magenest_stripe_iframe.instructions;
             }
         });
 

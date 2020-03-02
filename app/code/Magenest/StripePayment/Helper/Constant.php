@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: magenest
- * Date: 21/03/2017
- * Time: 09:21
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Helper;
@@ -21,4 +21,6 @@ class Constant
     const SOURCE_ENDPOINT = "https://api.stripe.com/v1/sources";
     const CHARGE_ENDPOINT = "https://api.stripe.com/v1/charges";
     const REFUND_ENDPOINT = "https://api.stripe.com/v1/refunds";
+
+    const RETRY_TIMEOUT = 3;
 }

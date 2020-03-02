@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: magenest
- * Date: 01/04/2017
- * Time: 16:34
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Helper;

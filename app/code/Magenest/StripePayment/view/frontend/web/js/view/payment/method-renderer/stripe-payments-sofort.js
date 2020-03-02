@@ -1,10 +1,13 @@
+/**
+ * Copyright © 2018 Magenest. All rights reserved.
+ */
 /*browser:true*/
 /*global define*/
 define(
     [
         'jquery',
         'ko',
-        'Magento_Checkout/js/view/payment/default',
+        'Magenest_StripePayment/js/view/payment/default',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/checkout-data',
         'Magento_Checkout/js/model/quote',
@@ -14,7 +17,8 @@ define(
         'Magento_Ui/js/model/messages',
         'Magento_Customer/js/model/customer',
         'Magento_Checkout/js/action/set-billing-address',
-        'mage/url'
+        'mage/url',
+        'mage/translate',
     ],
     function ($,
               ko,
@@ -100,7 +104,7 @@ define(
                                     self.isPlaceOrderActionAllowed(true);
                                     fullScreenLoader.stopLoader();
                                     self.messageContainer.addErrorMessage({
-                                        message: 'Something went wrong, please try again.'
+                                        message: $.mage.__('Something went wrong, please try again.')
                                     });
                                 }
                             });
@@ -124,7 +128,11 @@ define(
 
             getIcons: function () {
                 return window.checkoutConfig.payment.magenest_stripe_config.icon.magenest_stripe_sofort;
-            }
+            },
+
+            getInstructions: function () {
+                return window.checkoutConfig.payment.magenest_stripe_sofort.instructions;
+            },
         });
     }
 );

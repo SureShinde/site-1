@@ -1,5 +1,5 @@
 /**
- * Created by joel on 31/12/2016.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 /*browser:true*/
 /*global define*/
@@ -7,13 +7,14 @@ define(
     [
         'jquery',
         'ko',
-        'Magento_Checkout/js/view/payment/default',
+        'Magenest_StripePayment/js/view/payment/default',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Ui/js/model/messages',
         'mage/url',
-        'mage/cookies'
+        'mage/cookies',
+        'mage/translate',
     ],
     function ($,
               ko,
@@ -60,7 +61,8 @@ define(
                         self.isPlaceOrderActionAllowed(true);
                         fullScreenLoader.stopLoader();
                         self.messageContainer.addErrorMessage({
-                            message: 'Something went wrong, please try again.'
+                            message: $.mage.__('Something went wrong, please try again.')
+
                         });
                     }
                 });
@@ -69,7 +71,11 @@ define(
 
             getIcons: function () {
                 return window.checkoutConfig.payment.magenest_stripe_config.icon.magenest_stripe_multibanco;
-            }
+            },
+
+            validate: function() {
+                return true;
+            },
         });
     }
 );

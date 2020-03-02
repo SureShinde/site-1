@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: joel
- * Date: 02/01/2017
- * Time: 18:18
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Controller\Checkout\Giropay;

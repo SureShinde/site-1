@@ -1,4 +1,10 @@
 <?php
+/**
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
+ */
 
 namespace Magenest\StripePayment\Controller\Adminhtml\Customer;
 
@@ -24,11 +30,18 @@ class GetCard extends \Magento\Backend\App\Action
     public function execute()
     {
         $customerId = $this->getRequest()->getParam('customer_id');
-        $listCard = $this->stripeHelper->getSaveCard($customerId);
-        return $this->jsonFactory->create()->setData([
+        $listCard = $this->stripeHelper->getDataCard($customerId);
+        $html = "";
+        $html .= "<option value=''>".__("Select card")."</option>";
+        foreach ($listCard as $card){
+            $label = 'xxxxxxxxxxxx'.$card['last4'] . ' (' . $card['brand']. ')';
+            $html .= "
+            <option value=".$card['card_id'].">".$label."</option>
+            ";
+        }
+        return $this->resultFactory->create("json")->setData([
             'success' => true,
-            'error' =>false,
-            'listCard' => $listCard->getData()
+            'html' => $html
         ]);
     }
 

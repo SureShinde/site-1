@@ -1,22 +1,26 @@
 <?php
 /**
- * Created by Magenest.
- * Author: Pham Quang Hau
- * Date: 26/05/2016
- * Time: 14:57
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Model\Ui;
 
 use Magenest\StripePayment\Model\Alipay;
+use Magenest\StripePayment\Model\ApplePay;
 use Magenest\StripePayment\Model\Bancontact;
 use Magenest\StripePayment\Model\Eps;
 use Magenest\StripePayment\Model\GiroPay;
 use Magenest\StripePayment\Model\Ideal;
 use Magenest\StripePayment\Model\Multibanco;
 use Magenest\StripePayment\Model\Przelewy;
+use Magenest\StripePayment\Model\Sepa;
 use Magenest\StripePayment\Model\Sofort;
+use Magenest\StripePayment\Model\StripePaymentIframe;
 use Magenest\StripePayment\Model\StripePaymentMethod;
+use Magenest\StripePayment\Model\WeChatPay;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Payment\Helper\Data as PaymentHelper;
@@ -89,21 +93,23 @@ class ConfigProvider implements ConfigProviderInterface
 
     public function getConfig()
     {
-        $cardData = $this->getDataCard();
         return [
             'payment' => [
                 "magenest_stripe_config" => [
                     'publishableKey' => $this->stripeConfigHelper->getPublishableKey(),
                     'isLogin' => $this->_customerSession->isLoggedIn(),
                     'isZeroDecimal' => $this->checkIsZeroDecimal(),
-                    'icon' => $this->getIconMethod()
+                    'icon' => $this->getIconMethod(),
+                    'country_code' => $this->stripeConfigHelper->getScopeConfig()->getValue('general/country/default'),
+                    'https_check' => $this->stripeConfigHelper->getScopeConfig()->getValue('payment/magenest_stripe/https_check') ? true:false,
                 ],
-                "magenest_stripe" => $this->getStripeConfig(),
-                "magenest_stripe_iframe" => $this->getStripeCheckoutConfigOption(),
-                "magenest_stripe_applepay" => $this->getStripeApplePayConfig(),
-                "magenest_stripe_sofort" => $this->getSofortConfig(),
-                "magenest_stripe_ideal" => $this->getIdealConfig(),
-                "magenest_stripe_bancontact" => $this->getBancontactConfig(),
+                StripePaymentMethod::CODE => $this->getStripeConfig(),
+                StripePaymentIframe::CODE => $this->getStripeCheckoutConfigOption(),
+                ApplePay::CODE => $this->getStripeApplePayConfig(),
+                Sofort::CODE => $this->getSofortConfig(),
+                Ideal::CODE => $this->getIdealConfig(),
+                Bancontact::CODE => $this->getBancontactConfig(),
+                Sepa::CODE => $this->getSepaConfig(),
             ]
         ];
     }
@@ -119,24 +125,9 @@ class ConfigProvider implements ConfigProviderInterface
             Multibanco::CODE => $this->getViewFileUrl("Magenest_StripePayment::images/multibanco.png"),
             Przelewy::CODE => $this->getViewFileUrl("Magenest_StripePayment::images/p24.png"),
             Sofort::CODE => $this->getViewFileUrl("Magenest_StripePayment::images/sofort.png"),
+            WeChatPay::CODE => $this->getViewFileUrl("Magenest_StripePayment::images/wechatpay.png"),
+            Sepa::CODE => $this->getViewFileUrl("Magenest_StripePayment::images/sepa.png"),
         ];
-    }
-
-    public function getDataCard()
-    {
-        $objectManager = ObjectManager::getInstance();
-        /** @var \Magento\Customer\Model\Session $customerSession */
-        $customerSession = $objectManager->create('Magento\Customer\Model\Session');
-        if ($customerSession->isLoggedIn()) {
-            $customer_id = $customerSession->getCustomerId();
-            $model = $this->_cardFactory->create()
-                ->getCollection()
-                ->addFieldToFilter('magento_customer_id', $customer_id)
-                ->addFieldToFilter('status', "active");
-            return $model->getData();
-        } else {
-            return [];
-        }
     }
 
     public function checkIsZeroDecimal()
@@ -146,13 +137,14 @@ class ConfigProvider implements ConfigProviderInterface
     }
 
     public function getStripeConfig(){
-        $cardData = $this->getDataCard();
+        $cardData = $this->_helper->getDataCard();
         return [
-            'isSave' => $this->stripeConfigHelper->isSave(),
+            'isSave' => $this->stripeConfigHelper->isSave()?true:false,
             'saveCards' => json_encode($cardData),
             'hasCard' => count($cardData)>0 ? true:false,
             'instructions' => $this->stripeConfigHelper->getInstructions(),
-            'api' => $this->stripeConfigHelper->getApiVersion()
+            'api' => $this->stripeConfigHelper->getApiVersion(),
+            'display_payment_button' => $this->stripeConfigHelper->getDisplayPaymentButton()?true:false
         ];
     }
 
@@ -173,7 +165,8 @@ class ConfigProvider implements ConfigProviderInterface
             'accept_bitcoin' => $this->stripeConfigHelper->getCanAcceptBitcoin(),
             'accept_alipay' => $this->stripeConfigHelper->getCanAcceptAlipay(),
             'image_url' => $imageUrl,
-            'locale' => $this->stripeConfigHelper->getLocale()
+            'locale' => $this->stripeConfigHelper->getLocale(),
+            'instructions' => $this->stripeConfigHelper->getInstructions('iframe'),
         ];
     }
 
@@ -181,8 +174,11 @@ class ConfigProvider implements ConfigProviderInterface
     {
         return [
             'replace_placeorder' => $this->stripeConfigHelper->getReplacePlaceOrder(),
+            //'button_label' => $this->stripeConfigHelper->getApplepayButtonLabel()?$this->stripeConfigHelper->getApplepayButtonLabel():"Total",
             'button_type' => $this->stripeConfigHelper->getButtonType(),
             'button_theme' => $this->stripeConfigHelper->getButtonTheme(),
+            'instructions' => $this->stripeConfigHelper->getInstructions('applepay'),
+            'active_on_checkout' => $this->stripeConfigHelper->getActiveOnCheckout()?true:false
         ];
     }
 
@@ -193,7 +189,8 @@ class ConfigProvider implements ConfigProviderInterface
             'default_language' => $this->stripeConfigHelper->sofortDefaultLanguage(),
             'default_bank_country' => $this->stripeConfigHelper->sofortDefaultBankCountry(),
             'language_list' => json_encode($this->sofortLanguage->toOptionArray()),
-            'bank_list' => json_encode($this->sofortBank->toOptionArray())
+            'bank_list' => json_encode($this->sofortBank->toOptionArray()),
+            'instructions' => $this->stripeConfigHelper->getInstructions('sofort'),
         ];
     }
 
@@ -202,7 +199,8 @@ class ConfigProvider implements ConfigProviderInterface
             'is_use_element_interface' => ($this->stripeConfigHelper->isUseElementInterface()=="1")?true:false,
             'is_allow_select_bank' => ($this->stripeConfigHelper->isIdealAllowSelectBank()=="1")?true:false,
             'default_bank' => $this->stripeConfigHelper->getIdealDefaultBank(),
-            'bank_list' => json_encode($this->idealBank->toOptionArray())
+            'bank_list' => json_encode($this->idealBank->toOptionArray()),
+            'instructions' => $this->stripeConfigHelper->getInstructions('ideal'),
         ];
     }
 
@@ -210,7 +208,14 @@ class ConfigProvider implements ConfigProviderInterface
         return [
             'allow_select_language' => ($this->stripeConfigHelper->isBancontactAllowSelectLanguage()=="1")?true:false,
             'default_language' => $this->stripeConfigHelper->bancontactDefaultLanguage(),
-            'language_list' => json_encode($this->bancontactLanguage->toOptionArray())
+            'language_list' => json_encode($this->bancontactLanguage->toOptionArray()),
+            'instructions' => $this->stripeConfigHelper->getInstructions('bancontact'),
+        ];
+    }
+
+    private function getSepaConfig(){
+        return [
+            'instructions' => $this->stripeConfigHelper->getInstructions('sepa'),
         ];
     }
 

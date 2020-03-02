@@ -1,6 +1,5 @@
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 /*browser:true*/
 /*global define*/
@@ -27,6 +26,14 @@ define(
             },
 
             validate: function () {
+                if(window.checkoutConfig.payment.magenest_stripe_config.https_check){
+                    if (window.location.protocol !== "https:") {
+                        self.messageContainer.addErrorMessage({
+                            message: $.mage.__("Error: HTTPS is not enabled")
+                        });
+                        return false;
+                    }
+                }
                 return this.validateForm($('#'+this.getCode()+'-form'));
             },
 

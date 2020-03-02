@@ -1,4 +1,10 @@
 <?php
+/**
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 15:02
+ */
 
 namespace Magenest\StripePayment\Controller\Customer;
 
@@ -29,7 +35,7 @@ class CreateCard extends \Magento\Framework\App\Action\Action
         if (!$this->_formKeyValidator->validate($this->getRequest())) {
             return $result->setData([
                 'error' => true,
-                'message' => 'Invalid Form Key'
+                'message' => __('Invalid Form Key')
             ]);
         }
         if ($this->getRequest()->isAjax()) {
@@ -46,14 +52,14 @@ class CreateCard extends \Magento\Framework\App\Action\Action
                 } else {
                     return $result->setData([
                         'error' => true,
-                        'message' => "Error"
+                        'message' => __('Error')
                     ]);
                 }
             }
         }
         return $result->setData([
             'error' => true,
-            'message' => 'Invalid request'
+            'message' => __('Invalid request')
         ]);
     }
 }

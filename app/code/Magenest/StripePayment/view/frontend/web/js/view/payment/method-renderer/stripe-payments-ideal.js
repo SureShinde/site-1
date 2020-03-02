@@ -1,16 +1,20 @@
+/**
+ * Copyright © 2018 Magenest. All rights reserved.
+ */
 /*browser:true*/
 /*global define*/
 define(
     [
         'jquery',
         'ko',
-        'Magento_Checkout/js/view/payment/default',
+        'Magenest_StripePayment/js/view/payment/default',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Ui/js/model/messages',
         'mage/url',
-        'Magento_Checkout/js/model/quote'
+        'Magento_Checkout/js/model/quote',
+        'mage/translate',
     ],
     function (
         $,
@@ -51,23 +55,10 @@ define(
                 return this;
             },
 
-            loadStripeApi: function (callback) {
-                var self = this;
-                $.ajax({
-                    url: "https://js.stripe.com/v3/",
-                    dataType: 'script',
-                    success: function (result) {
-                        stripe = Stripe(self.publicKey);
-                        callback();
-                    },
-                    async: true,
-                    showLoader: true
-                });
-            },
-
             initStripeIdeal: function(){
-                var self = this;
-                this.loadStripeApi(function () {
+                if (this.validate()) {
+                    var self = this;
+                    stripe = Stripe(self.publicKey);
                     elements = stripe.elements();
                     var style = {
                         base: {
@@ -88,23 +79,15 @@ define(
                     idealBank = elements.create('idealBank', {style: style});
                     idealBank.mount('#ideal-bank-element');
 
-                    errorMessage = $('#'+self.getCode()+'-error-message');
+                    errorMessage = $('#' + self.getCode() + '-error-message');
 
-                    var form = $('#'+self.getCode()+'-payment-form');
-                });
+                    var form = $('#' + self.getCode() + '-payment-form');
+                }
             },
 
             validate: function () {
                 var self = this;
-                if(this.useElementInterface()) {
-                    if (window.checkoutConfig.payment.magenest_stripe_config.publishableKey === "") {
-                        self.messageContainer.addErrorMessage({
-                            message: "No API key provided."
-                        });
-                        return false;
-                    }
-                }
-                return $('#'+this.getCode() + '-payment-form').valid();
+                return this._super();
             },
 
             placeOrder: function (data, event) {
@@ -143,6 +126,8 @@ define(
                                     if (result.error) {
                                         errorMessage.html(result.error.message);
                                         errorMessage.addClass("visible");
+                                        fullScreenLoader.stopLoader();
+                                        self.isPlaceOrderActionAllowed(true);
                                     } else {
                                         var redirectUrl = result.source.redirect.url;
                                         errorMessage.removeClass("visible");
@@ -170,7 +155,7 @@ define(
                                                 self.isPlaceOrderActionAllowed(true);
                                                 fullScreenLoader.stopLoader();
                                                 self.messageContainer.addErrorMessage({
-                                                    message: 'Something went wrong, please try again.'
+                                                    message: $.mage.__('Something went wrong, please try again.')
                                                 });
                                             }
                                         });
@@ -201,7 +186,7 @@ define(
                                         self.isPlaceOrderActionAllowed(true);
                                         fullScreenLoader.stopLoader();
                                         self.messageContainer.addErrorMessage({
-                                            message: 'Something went wrong, please try again.'
+                                            message: $.mage.__('Something went wrong, please try again.')
                                         });
                                     }
                                 });
@@ -226,7 +211,11 @@ define(
 
             getIcons: function () {
                 return window.checkoutConfig.payment.magenest_stripe_config.icon.magenest_stripe_ideal;
-            }
+            },
+
+            getInstructions: function () {
+                return window.checkoutConfig.payment.magenest_stripe_ideal.instructions;
+            },
         });
     }
 );

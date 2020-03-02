@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hiennq
- * Date: 27/12/2017
- * Time: 11:32
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Controller\Checkout\Ideal;
@@ -30,14 +30,20 @@ class Update extends \Magenest\StripePayment\Controller\Checkout\Source
             $quote = $this->_checkoutSession->getQuote();
             $source = $this->getRequest()->getParam('source');
             $this->_debug($source);
-            $sourceId = @$source['id'];
-            $clientSecret = @$source['client_secret'];
+            $sourceId = isset($source['id'])?$source['id']:"";
+            $clientSecret = isset($source['client_secret'])?$source['client_secret']:"";
             if(!$sourceId){
                 throw new StripePaymentException(
                     __("Source error")
                 );
             }
             $payment = $quote->getPayment();
+            $sourceModel = $this->sourceFactory->create();
+            $sourceModel->setData("source_id", $sourceId);
+            $sourceModel->setData("method", $payment->getMethod());
+            $sourceModel->setData("quote_id", $quote->getEntityId());
+            $sourceModel->isObjectNew(true);
+            $sourceModel->save();
             $payment->setAdditionalInformation("stripe_source_id", $sourceId);
             $payment->setAdditionalInformation("stripe_client_secret", $clientSecret);
             $quote->save();
@@ -69,7 +75,7 @@ class Update extends \Magenest\StripePayment\Controller\Checkout\Source
     /**
      * @return array
      */
-    protected function getPostRequest()
+    protected function getPostRequest($quote)
     {
         return [];
     }

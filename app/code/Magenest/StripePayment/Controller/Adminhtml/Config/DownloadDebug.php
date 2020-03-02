@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hiennq
- * Date: 19/05/2018
- * Time: 14:11
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Controller\Adminhtml\Config;
@@ -29,8 +29,12 @@ class DownloadDebug extends \Magento\Backend\App\Action
     public function execute()
     {
         $version = $this->getRequest()->getParam('version');
-        $filename = "stripepayment_debugfile_".$version."_".date("Ymd").".log";
+        $filename = "stripe_debugfile_".$version."_".time().".log";
         $file = $this->directory_list->getPath("var")."/log/stripe/debug.log";
-        return $this->fileFactory->create($filename, @file_get_contents($file));
+        if(file_exists($file)){
+            return $this->fileFactory->create($filename, file_get_contents($file), "tmp");
+        }else{
+            return $this->resultRedirectFactory->create()->setRefererOrBaseUrl();
+        }
     }
 }

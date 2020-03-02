@@ -82,3 +82,20 @@
     padding: 10px 0;
     border-radius: 10px;
 }
+
+#magenest_stripe_sepa-error-message.visible, #magenest_stripe_sepa-bank-name.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#magenest_stripe_sepa-error-message, #magenest_stripe_sepa-bank-name {
+    min-height: 20px;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: all 400ms cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+#magenest_stripe_sepa-error-message {
+    margin-top: 12px;
+    color: #fa755a;
+}

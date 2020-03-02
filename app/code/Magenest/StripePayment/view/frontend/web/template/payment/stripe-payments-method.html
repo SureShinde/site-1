@@ -1,7 +1,6 @@
 <!--
 /**
- * Copyright © 2015 Magento. All rights reserved.
- * See COPYING.txt for license details.
+ * Copyright © 2018 Magenest. All rights reserved.
  */
 -->
 <div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
@@ -35,7 +34,7 @@
             <!--/ko-->
         </div>
 
-        <!-- ko if: ((saveCardConfig == 1) && isLogged && hasCard) -->
+        <!-- ko if: (saveCardConfig && isLogged && hasCard) -->
         <select name="payment[credit_card_name]" class="select"
                 data-bind="attr: {id: getCode() + '-card-id', 'data-container': getCode() + '-card-id'},
                            options: customerCard,
@@ -60,7 +59,7 @@
 
         <div class="checkout-savecart-block">
             <div data-role="checkout-savecart">
-                <div class="checkout-savecart" data-bind="visible: ((saveCardConfig == 1) && isLogged && !isSelectCard())">
+                <div class="checkout-savecart" data-bind="visible: (saveCardConfig && isLogged && !isSelectCard())">
                     <div class="checkout-savecart">
                         <input type="checkbox" class="checkbox" data-bind="checked: saveCardOption"
                                id="magenest_stripe_savecart" name="payment[save]" value="1">

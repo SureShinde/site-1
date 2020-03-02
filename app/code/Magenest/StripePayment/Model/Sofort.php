@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hiennq
- * Date: 26/12/2017
- * Time: 17:59
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Model;
@@ -83,7 +83,7 @@ class Sofort extends AbstractMethod
     public function initialize($paymentAction, $stateObject)
     {
         try {
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            $this->_helper->initStripeApi();
             $payment = $this->getInfoInstance();
             $order = $payment->getOrder();
             $sourceId = $payment->getAdditionalInformation("stripe_source_id");
@@ -101,6 +101,7 @@ class Sofort extends AbstractMethod
                 $payment->setTransactionId($chargeId);
                 $payment->setAmountAuthorized($totalDue);
                 $payment->authorize(true, $baseTotalDue);
+                $order->setCanSendNewEmailFlag(false);
             }
             if ($chargeStatus == 'succeeded') {
                 $transactionId = $charge->balance_transaction;
@@ -135,7 +136,8 @@ class Sofort extends AbstractMethod
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         try {
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            $this->_helper->initStripeApi();
+            $order = $payment->getOrder();
             $chargeId = $payment->getAdditionalInformation("stripe_charge_id");
             if (!$chargeId) {
                 throw new LocalizedException(
@@ -147,10 +149,11 @@ class Sofort extends AbstractMethod
             $chargeStatus = $charge->status;
             if ($chargeStatus == 'pending') {
                 throw new LocalizedException(
-                    __("Payment is pending. Cannot capture this payment online")
+                    __("Payment is pending. Cannot capture this payment")
                 );
             }
             if ($chargeStatus == 'succeeded') {
+                $order->setCanSendNewEmailFlag(true);
                 $transactionId = $charge->balance_transaction;
                 $payment->setTransactionId($transactionId)
                     ->setLastTransId($transactionId);
@@ -165,7 +168,11 @@ class Sofort extends AbstractMethod
 
             return parent::capture($payment, $amount);
         }catch (\Stripe\Error\Base $e){
-            throw new LocalizedException(__($e->getMessage()));
+            if($e->getStripeCode() == 'idempotency_key_in_use'){
+                throw new \Magenest\StripePayment\Exception\StripePaymentDuplicateException($e->getMessage());
+            }else {
+                throw new LocalizedException(__($e->getMessage()));
+            }
         }
     }
 
@@ -177,7 +184,7 @@ class Sofort extends AbstractMethod
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         try {
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            $this->_helper->initStripeApi();
             $chargeId = $payment->getAdditionalInformation("stripe_charge_id");
             $refundReason = $this->request->getParam('refund_reason');
             $request = $this->_helper->createRefundRequest($payment, $chargeId, $amount);

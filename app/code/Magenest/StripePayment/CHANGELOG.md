@@ -5,9 +5,78 @@ This extension adheres to [Magenest](http://magenest.com/).
 
 Stripe compatible with 
 ```
-Magento Commerce 2.1.x, 2.2.x, 
-Magento OpenSource 2.1.x, 2.2.x
+Magento Commerce 2.1.x, 2.2.x, 2.3.x
+Magento OpenSource 2.1.x, 2.2.x, 2.3.x
 ```
+## [2.4.1] - 2019-09-03
+-   Add: Payment action select for Stripe Payment Intent
+-   Add: New Order status select for Stripe Payment Intent
+-   Add: Display credit card type for Stripe Payment Intent
+-   Add: Manual or Automatic capture for Stripe Payment Intent
+-   Fix bug: Stripe Payment Intents sent mass request in checkout page
+
+## [2.4.0] - 2019-08-12
+-   Support for SCA compliant payments (Stripe Payment Intents and Stripe Checkout)
+-   Add: Stripe Checkout https://stripe.com/docs/payments/checkout
+-   Add: Stripe Payment Intents https://stripe.com/docs/payments/payment-intents
+-   Add: Stripe SEPA direct debit payment
+-   Add: Browser https validate to improve security
+-   Improve Performance and security
+-   Fix bug: validate public key
+-   Fix bug: get customer email
+-   Fix bug: form key validate fail with Stripe Ideal
+-   Fix bug: WechatPay used store currency
+
+## [2.3.0] - 2019-04-18
+-   Add: Payment Intents API
+-   Add: WechatPay Payment
+-   Add: Support multiple language
+-   Fix: Place order with applepay in catalog page
+-   Fix: Conflict javascript code
+-   Fix: Place order in adminhtml
+-   Fix: Missing credit card data in order
+-   Fix: Handle 3d secure response
+-   Fix: Error display credit card field in save card page
+
+## [2.2.3] - 2019-01-10
+-   Improve security and performance
+-   Upgrade: Stripe payment sdk
+-   Add: Stripe checkout button in product detail page.
+-   Add: Stripe checkout button in Shopping cart.
+-   Fix: Process payment with source: Ideal
+-   Fix: MOTO transaction require customer id
+-   Fix: Delete card timeout 
+-   Fix: Display save card list in adminhtml
+-   Remove: Collect billing and shipping address stripe Iframe
+
+## [2.2.2] - 2018-12-11
+Ready for Magento 2.3
+-   Add: Applepay button in Stripe Card
+-   Add: Payment Instruction in payment method
+-   Add: Statement descriptor
+-   Add: Api register applepay domain
+-   Upgrade: Stripe API
+-   Fix bug: missing ApplePay button in checkout page
+
+## [2.2.1] - 2018-10-26
+-   Fix bug customer don't have order confirmation email
+-   Fix bug order cancelled/refund unexpected
+-   Fix bug payment cannot charge amount
+-   Fix bug customer double click, prevent duplicate response
+-   Fix bug order sometime response null from checkout session
+-   Fix Web hook processing: webhook now also listen 3d secure payment
+-   Fix stripe icon missing in backend html
+-   Fix bug magento sometime cannot get public key
+-   Fix bug Applepay, Google display wrong amount when using OneStepcheckout
+-   Fix display all stripe message when payment error
+-   Fix bug payment error on Multibanco method
+-   Fix bug save card error when.
+-   Fix bug refund error when using direct api
+-   Webhook now also processing payment, handle when customer close their browser after authorize payment
+-   Add debug file line
+-   Add validate quote info when customer submit order
+-   Upgrade stripe library sdk
+
 ## [2.2.0] - 2018-08-04
 -   Add Stripe Library v6.13.0
 -   Add Stripe WebHooks to get payment notification

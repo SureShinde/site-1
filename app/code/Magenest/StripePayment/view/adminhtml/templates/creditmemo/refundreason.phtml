@@ -1,17 +1,20 @@
 <?php
+/**
+ * Copyright © 2018 Magenest. All rights reserved.
+ */
 // @codingStandardsIgnoreFile
 ?>
 <?php if($block->canShowOption()){ ?>
     <div class="admin-refund-reason">
         <div class="admin__page-section-item-title">
-            <span class="title">Stripe Refund Reason</span>
+            <span class="title"><?=__('Stripe Refund Reason')?></span>
         </div>
         <div>
             <select name="refund_reason">
-                <option value="">No Reason</option>
-                <option value="duplicate">Duplicate</option>
-                <option value="fraudulent">Fraudulent</option>
-                <option value="requested_by_customer">Requested By Customer</option>
+                <option value=""><?=__('No Reason')?></option>
+                <option value="duplicate"><?=__('Duplicate')?></option>
+                <option value="fraudulent"><?=__('Fraudulent')?></option>
+                <option value="requested_by_customer"><?=__('Requested By Customer')?></option>
             </select>
         </div>
     </div>

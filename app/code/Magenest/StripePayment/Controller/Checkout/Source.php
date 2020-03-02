@@ -1,19 +1,22 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hiennq
- * Date: 27/12/2017
- * Time: 11:32
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Controller\Checkout;
 
 use Magenest\StripePayment\Exception\StripePaymentException;
+use Magento\Framework\Exception\LocalizedException;
 use Stripe;
 use Magenest\StripePayment\Helper\Constant;
 use Magento\Framework\App\Action\Context;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Quote\Model\CustomerManagement;
+use Magento\Quote\Model\QuoteValidator;
 
 abstract class Source extends \Magento\Framework\App\Action\Action
 {
@@ -24,6 +27,9 @@ abstract class Source extends \Magento\Framework\App\Action\Action
     protected $_formKeyValidator;
     protected $stripeHelper;
     protected $customerSession;
+    protected $sourceFactory;
+    protected $quoteValidator;
+    protected $customerManagement;
 
     public function __construct(
         Context $context,
@@ -33,7 +39,10 @@ abstract class Source extends \Magento\Framework\App\Action\Action
         \Magenest\StripePayment\Helper\Logger $stripeLogger,
         \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator,
         \Magenest\StripePayment\Helper\Data $stripeHelper,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        \Magenest\StripePayment\Model\SourceFactory $sourceFactory,
+        CustomerManagement $customerManagement,
+        QuoteValidator $quoteValidator
     ) {
         parent::__construct($context);
         $this->_checkoutSession = $session;
@@ -43,7 +52,9 @@ abstract class Source extends \Magento\Framework\App\Action\Action
         $this->_formKeyValidator = $formKeyValidator;
         $this->stripeHelper = $stripeHelper;
         $this->customerSession = $customerSession;
-        Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+        $this->sourceFactory = $sourceFactory;
+        $this->quoteValidator = $quoteValidator;
+        $this->customerManagement = $customerManagement;
     }
 
     public function execute()
@@ -51,22 +62,44 @@ abstract class Source extends \Magento\Framework\App\Action\Action
         $this->_debug("Creating source");
         $result = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         try {
+            if(!class_exists(Stripe\Stripe::class)){
+                throw new StripePaymentException(
+                    __("Stripe PHP library was not installed")
+                );
+            }
+            $this->stripeHelper->initStripeApi();
             if (!$this->_formKeyValidator->validate($this->getRequest())) {
                 throw new StripePaymentException(
                     __("Invalid form key")
                 );
             }
             $quote = $this->_checkoutSession->getQuote();
-            $request = $this->getPostRequest();
+            $this->quoteValidator->validateBeforeSubmit($quote);
+            if (!$quote->getCustomerIsGuest()) {
+                if ($quote->getCustomerId()) {
+                    if(method_exists($this->customerManagement,'validateAddresses')){
+                        $this->customerManagement->validateAddresses($quote);
+                    }
+                }
+            }
+            $request = $this->getPostRequest($quote);
             $source = Stripe\Source::create($request);
             $this->_debug($source->getLastResponse()->json);
-            $redirectUrl = $source->redirect->url;
+            if($this->getSourceType() == 'wechat'){
+                $redirectUrl = $source->wechat->qr_code_url;
+            }else{
+                $redirectUrl = $source->redirect->url;
+            }
             $sourceId = $source->id;
-            $clientSecret = $source->client_secret;
             $payment = $quote->getPayment();
-            $payment->setAdditionalInformation("stripe_client_secret", $clientSecret);
-            $payment->setAdditionalInformation("stripe_source_id", $sourceId);
-            $quote->save();
+            $sourceModel = $this->sourceFactory->create();
+            $sourceModel->setData("source_id", $sourceId);
+            $sourceModel->setData("method", $payment->getMethod());
+            $sourceModel->setData("quote_id", $quote->getEntityId());
+            $sourceModel->isObjectNew(true);
+            $sourceModel->save();
+            $payment->setAdditionalInformation("stripe_uid", uniqid());
+            $quote->setIsActive(false)->save();
 
             $data = [
                 'success' => true,
@@ -89,11 +122,26 @@ abstract class Source extends \Magento\Framework\App\Action\Action
                 'message' => $e->getMessage()
             ]);
         }
+        catch (\Magento\Framework\Validator\Exception $e){
+            $this->stripeHelper->debugException($e);
+            $result->setData([
+                'error' => true,
+                'message' => $e->getMessage()
+            ]);
+        }
+        catch (LocalizedException $e){
+            $this->stripeHelper->debugException($e);
+            $result->setData([
+                'error' => true,
+                'message' => $e->getMessage()
+            ]);
+        }
         catch (\Exception $e) {
+            $this->stripeHelper->debugException($e);
             $result->setData([
                 'error' => true,
                 'success' => false,
-                'message' => "Cannot process payment"
+                'message' => __("Cannot process payment")
             ]);
         } finally {
             return $result;
@@ -101,38 +149,19 @@ abstract class Source extends \Magento\Framework\App\Action\Action
     }
 
     /**
+     * @var \Magento\Quote\Model\Quote $quote
      * @return array
      */
-    protected function getPostRequest(){
-        $quote = $this->_checkoutSession->getQuote();
-        $billingAddress = $quote->getBillingAddress();
-        $quote = $this->_checkoutSession->getQuote();
-        $grandTotal = $quote->getBaseGrandTotal();
-        $baseCurrency = strtolower($quote->getBaseCurrencyCode());
-        if (!$this->stripeHelper->isZeroDecimal($baseCurrency)) {
-            $grandTotal = $grandTotal*100;
-        }
-        $request = [
-            "type" => $this->getSourceType(),
-            "amount" => round($grandTotal),
-            "currency" => $baseCurrency,
-            "redirect" => [
-                "return_url" => $this->getReturnUrl()
-            ],
-            'owner'=>[
-                'name' => $billingAddress->getName(),
-                'email' => $billingAddress->getEmail(),
-                'phone' => $billingAddress->getTelephone(),
-                'address' => [
-                    'city' => $billingAddress->getCity(),
-                    'country' => $billingAddress->getCountryId(),
-                    'line1' => $billingAddress->getStreetLine(1),
-                    'line2' => $billingAddress->getStreetLine(2),
-                    'postal_code' => $billingAddress->getPostcode(),
-                    'state' => $billingAddress->getRegion()
-                ]
+    protected function getPostRequest($quote){
+        $request = $this->stripeHelper->getPaymentSource($quote, $this->getSourceType());
+        $request = array_merge(
+            $request,
+            [
+                "redirect" => [
+                    "return_url" => $this->getReturnUrl()
+                ],
             ]
-        ];
+        );
         $request = array_merge($request, $this->getCustomRequest());
         $this->_debug($request);
         return $request;

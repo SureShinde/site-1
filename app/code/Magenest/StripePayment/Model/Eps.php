@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hiennq
- * Date: 26/12/2017
- * Time: 17:59
+ * Created by Magenest JSC.
+ * Author: Jacob
+ * Date: 10/01/2019
+ * Time: 9:41
  */
 
 namespace Magenest\StripePayment\Model;
@@ -83,11 +83,16 @@ class Eps extends AbstractMethod
     public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         try {
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            $this->stripeHelper->initStripeApi();
             $order = $payment->getOrder();
             $sourceId = $payment->getAdditionalInformation("stripe_source_id");
             $chargeRequest = $this->stripeHelper->createChargeRequest($order, $amount, $sourceId);
-            $charge = Stripe\Charge::create($chargeRequest);
+            $uid = $payment->getAdditionalInformation("stripe_uid");
+            $charge = \Stripe\Charge::create($chargeRequest, [
+                "idempotency_key" => $uid
+            ]);
+            $stripeAmount = $charge->amount;
+            $this->stripeHelper->checkTransaction($payment, $stripeAmount);
             $this->_debug($charge->getLastResponse()->json);
             $chargeId = $charge->id;
             $payment->setAdditionalInformation("stripe_charge_id", $chargeId);
@@ -105,7 +110,11 @@ class Eps extends AbstractMethod
             }
             return parent::capture($payment, $amount);
         }catch (\Stripe\Error\Base $e){
-            throw new LocalizedException(__($e->getMessage()));
+            if($e->getStripeCode() == 'idempotency_key_in_use'){
+                throw new \Magenest\StripePayment\Exception\StripePaymentDuplicateException(__($e->getMessage()));
+            }else {
+                throw new LocalizedException(__($e->getMessage()));
+            }
         }
     }
 
@@ -117,7 +126,7 @@ class Eps extends AbstractMethod
     public function refund(\Magento\Payment\Model\InfoInterface $payment, $amount)
     {
         try {
-            Stripe\Stripe::setApiKey($this->stripeConfig->getSecretKey());
+            $this->stripeHelper->initStripeApi();
             $chargeId = $payment->getAdditionalInformation("stripe_charge_id");
             $refundReason = $this->request->getParam('refund_reason');
             $request = $this->stripeHelper->createRefundRequest($payment, $chargeId, $amount);
