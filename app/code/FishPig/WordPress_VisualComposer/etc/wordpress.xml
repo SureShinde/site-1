@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<wordpress>
-	<shortcodes>
-		<shortcode id="visualcomposer" class="FishPig\WordPress_VisualComposer\Model\Shortcode" sortOrder="900" />
-	</shortcodes>
-</wordpress>
