@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+   <!-- <menu>
+    <add id="Custom_Banner::base" title="Banner" module="Custom_Banner" sortOrder="30" resource="Custom_Banner::banner"/>
+
+    <add id="Custom_Banner::banner" title="Banner Manager" module="Custom_Banner" sortOrder="10" parent="Custom_Banner::base" resource="Custom_Banner::banner_banner"/>
+		
+    <add id="Custom_Banner::banner_banner" title="Manage Banner" module="Custom_Banner" sortOrder="10" parent="Custom_Banner::banner" action="banner/banner" resource="Custom_Banner::banner_banner"/>
+    </menu>-->
+</config>
