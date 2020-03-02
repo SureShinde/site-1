@@ -28,6 +28,7 @@ class Remarketing extends \WeltPixel\GoogleTagManager\Model\Api
     const ECOMM_PAGETYPE_PRODUCT = 'product';
     const ECOMM_PAGETYPE_CART = 'cart';
     const ECOMM_PAGETYPE_PURCHASE = 'purchase';
+    const ECOMM_PAGETYPE_CHECKOUT = 'checkout';
     const ECOMM_PAGETYPE_OTHER = 'other';
 
 
@@ -56,22 +57,32 @@ class Remarketing extends \WeltPixel\GoogleTagManager\Model\Api
         $existingVariables = $this->_getExistingVariables($accountId, $containerId);
         $result = [];
         $variableFlags = [];
+        $variableIds = [];
 
         foreach ($existingVariables as $variable) {
             $variableFlags[$variable['name']] = true;
+            $variableIds[$variable['name']] = $variable['variableId'];
         }
 
         $variablesToCreate = $this->_getRemarketingVariables();
 
         foreach ($variablesToCreate as $name => $options) {
-            /** Ignore already created variables */
-            if (isset($variableFlags[$name])) continue;
             try {
-                $response = $this->_createVariable($accountId, $containerId, $options);
-                if ($response['variableId']) {
-                    $result[] = __('Successfully created Remarketing variable: ') . $response['name'];
+                /** Update already created variables */
+                if (isset($variableFlags[$name])) {
+                    $response = $this->_updateVariable($accountId, $containerId, $options, $variableIds[$name]);
+                    if ($response['variableId']) {
+                        $result[] = __('Successfully updated Remarketing variable: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error updating Remarketing variable: ') . $response['name'];
+                    }
                 } else {
-                    $result[] = __('Error creating Remarketing variable: ') . $response['name'];
+                    $response = $this->_createVariable($accountId, $containerId, $options);
+                    if ($response['variableId']) {
+                        $result[] = __('Successfully created Remarketing variable: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error creating Remarketing variable: ') . $response['name'];
+                    }
                 }
             } catch (\Exception $ex) {
                 $result[] = $ex->getMessage();
@@ -92,24 +103,34 @@ class Remarketing extends \WeltPixel\GoogleTagManager\Model\Api
         $existingTags = $this->_getExistingTags($accountId, $containerId);
         $result = [];
         $tagFlags = [];
+        $tagIds = [];
 
 
         foreach ($existingTags as $tag) {
             $tagFlags[$tag['name']] = true;
+            $tagIds[$tag['name']] = $tag['tagId'];
         }
 
         $triggersMapping = $this->_getTriggersMapping($accountId, $containerId);
         $tagsToCreate = $this->_getRemarketingTags($triggersMapping, $params);
 
         foreach ($tagsToCreate as $name => $options) {
-            /** Ignore already created tags */
-            if (isset($tagFlags[$name])) continue;
             try {
-                $response = $this->_createTag($accountId, $containerId, $options);
-                if ($response['tagId']) {
-                    $result[] = __('Successfully created Remarketing Tracking tag: ') . $response['name'];
+                /** Update already created tags */
+                if (isset($tagFlags[$name])) {
+                    $response = $this->_updateTag($accountId, $containerId, $options, $tagIds[$name]);
+                    if ($response['tagId']) {
+                        $result[] = __('Successfully updated Remarketing Tracking tag: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error updating Remarketing Tracking tag: ') . $response['name'];
+                    }
                 } else {
-                    $result[] = __('Error creating Remarketing Tracking tag: ') . $response['name'];
+                    $response = $this->_createTag($accountId, $containerId, $options);
+                    if ($response['tagId']) {
+                        $result[] = __('Successfully created Remarketing Tracking tag: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error creating Remarketing Tracking tag: ') . $response['name'];
+                    }
                 }
             } catch (\Exception $ex) {
                 $result[] = $ex->getMessage();
@@ -137,13 +158,13 @@ class Remarketing extends \WeltPixel\GoogleTagManager\Model\Api
                     (
                         'type' => 'integer',
                         'key' => 'dataLayerVersion',
-                        'value' => 2
+                        'value' => "2"
                     ),
                     array
                     (
                         'type' => 'boolean',
                         'key' => 'setDefaultValue',
-                        'value' => false
+                        'value' => "false"
                     ),
                     array
                     (

@@ -6,16 +6,8 @@ $_helper = $this->helper('WeltPixel\GoogleTagManager\Helper\Data');
 ?>
 <?php if ($_helper->isEnabled()) : ?>
     <script>
-        require(['jquery','weltpixel_gtm'],
-            function ($, wpgtm) {
-                $( document ).ready(function() {
-                    setTimeout(function() {
-                        $.ajax({
-                            url: '<?php echo $_helper->getDimensionsActionUrl(); ?>',
-                            method: "POST"
-                        });
-                    }, 500);
-                });
+        require(['jquery','weltpixel_persistentLayer','weltpixel_gtm', 'Magento_Customer/js/customer-data'],
+            function ($, wpPersDl ,wpgtm, customerData) {
                 $( document ).ajaxComplete(function( event, xhr, settings ) {
                     if (settings.url.search('/customer\/section\/load/') > 0) {
                         var response = xhr.responseJSON;
@@ -27,8 +19,14 @@ $_helper = $this->helper('WeltPixel\GoogleTagManager\Helper\Data');
                         }
                     }
                 });
-                var wpGtmOptions = {'enabled' : <?php echo $_helper->trackPromotions() ?> };
+                var wpPersDlOptions = {'storageExpiryTime' : <?php echo $_helper->getPersistentStorageExpiryTime() ?> };
+                var wpGtmOptions = {
+                    'enabled' : <?php echo $_helper->trackPromotions() ?>,
+                    'persDataLayer' : wpPersDl
+                };
+                wpPersDl.init(wpPersDlOptions);
                 wpgtm.trackPromotion(wpGtmOptions);
+                customerData.invalidate(['gtm']);
             });
     </script>
 <?php endif; ?>

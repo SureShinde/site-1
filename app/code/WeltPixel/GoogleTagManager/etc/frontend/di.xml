@@ -8,4 +8,7 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Framework\App\FrontController">
+        <plugin name="weltpixel-googletagmanager-cookieset" type="WeltPixel\GoogleTagManager\Plugin\CookieManagement" sortOrder="20"/>
+    </type>
 </config>

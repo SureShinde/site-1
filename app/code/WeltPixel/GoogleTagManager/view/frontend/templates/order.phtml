@@ -12,17 +12,10 @@
             'id' => $order->getIncrementId(),
             'affiliation' => $helper->getAffiliationName(),
             'revenue' => $this->getOrderTotal(),
-            'coupon' => (string)$order->getCouponCode()
+            'coupon' => (string)$order->getCouponCode(),
+            'tax' => $order->getTaxAmount(),
+            'shipping' => $order->getShippingAmount()
         ];
-
-        if (!$this->excludeTaxFromTransaction()) :
-            $purchaseData['actionField']['tax'] = $order->getBaseTaxAmount();
-        endif;
-
-        if (!$this->excludeShippingFromTransaction()) :
-            $purchaseData['actionField']['shipping'] = $order->getBaseShippingAmount();
-        endif;
-
 
         $purchaseData['products'] = $products;
 

@@ -56,7 +56,7 @@ class SalesQuoteRemoveItemObserver implements ObserverInterface
         $qty = $quoteItem->getData('qty');
 
         /** Need to extend or use another event or plugin to send variant */
-        $this->_checkoutSession->setRemoveFromCartData($this->helper->removeFromCartPushData($qty, $product));
+        $this->_checkoutSession->setRemoveFromCartData($this->helper->removeFromCartPushData($qty, $product, $quoteItem));
 
         return $this;
     }

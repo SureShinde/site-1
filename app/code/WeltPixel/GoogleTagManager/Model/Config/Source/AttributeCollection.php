@@ -30,7 +30,10 @@ class AttributeCollection implements ArrayInterface
 	 */
 	public function toOptionArray()
 	{
-		$arr = [];
+        $arr = [
+            'entity_id' => 'Product Id',
+            'sku'       => 'Sku'
+        ];
 		$attributesCollection = $this->_attributeCollectionFactory->create()
 			->addFieldToFilter('used_in_product_listing', 1);
 		foreach ($attributesCollection as $attribute) {

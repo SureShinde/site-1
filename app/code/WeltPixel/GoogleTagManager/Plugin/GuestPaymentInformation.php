@@ -51,9 +51,11 @@ class GuestPaymentInformation
 
         $order = $this->orderRepository->get($orderId);
         $additionalInformation = $order->getPayment()->getAdditionalInformation();
-        $paymentMethodTitle = $additionalInformation['method_title'];
 
-        $this->_checkoutSession->setCheckoutOptionsData($this->helper->addCheckoutStepPushData('3', $paymentMethodTitle));
+        if ($additionalInformation && isset($additionalInformation['method_title'])) {
+            $paymentMethodTitle = $additionalInformation['method_title'];
+            $this->_checkoutSession->setCheckoutOptionsData($this->helper->addCheckoutStepPushData('3', $paymentMethodTitle));
+        }
 
         return $result;
     }

@@ -16,7 +16,7 @@ class Product extends \WeltPixel\GoogleTagManager\Block\Core
         $collection = '';
 
         if (empty($relatedProductListBlock)) {
-            return null;
+            return [];
         }
 
         $relatedProductListBlock->toHtml();
@@ -41,7 +41,7 @@ class Product extends \WeltPixel\GoogleTagManager\Block\Core
         $collection = '';
 
         if (empty($upsellProductListBlock)) {
-            return null;
+            return [];
         }
 
         $upsellProductListBlock->toHtml();

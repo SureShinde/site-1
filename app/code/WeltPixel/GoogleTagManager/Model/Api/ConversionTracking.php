@@ -56,22 +56,32 @@ class ConversionTracking extends \WeltPixel\GoogleTagManager\Model\Api
         $existingVariables = $this->_getExistingVariables($accountId, $containerId);
         $result = [];
         $variableFlags = [];
+        $variableIds = [];
 
         foreach ($existingVariables as $variable) {
             $variableFlags[$variable['name']] = true;
+            $variableIds[$variable['name']] = $variable['variableId'];
         }
 
         $variablesToCreate = $this->_getConversionVariables();
 
         foreach ($variablesToCreate as $name => $options) {
-            /** Ignore already created variables */
-            if (isset($variableFlags[$name])) continue;
             try {
-                $response = $this->_createVariable($accountId, $containerId, $options);
-                if ($response['variableId']) {
-                    $result[] = __('Successfully created Conversion Tracking variable: ') . $response['name'];
+                /** Update already created variables */
+                if (isset($variableFlags[$name])) {
+                    $response = $this->_updateVariable($accountId, $containerId, $options, $variableIds[$name]);
+                    if ($response['variableId']) {
+                        $result[] = __('Successfully updated Conversion Tracking variable: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error updating Conversion Tracking variable: ') . $response['name'];
+                    }
                 } else {
-                    $result[] = __('Error creating Conversion Tracking variable: ') . $response['name'];
+                    $response = $this->_createVariable($accountId, $containerId, $options);
+                    if ($response['variableId']) {
+                        $result[] = __('Successfully created Conversion Tracking variable: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error creating Conversion Tracking variable: ') . $response['name'];
+                    }
                 }
             } catch (\Exception $ex) {
                 $result[] = $ex->getMessage();
@@ -93,22 +103,32 @@ class ConversionTracking extends \WeltPixel\GoogleTagManager\Model\Api
 
         $result = [];
         $triggerFlags = [];
+        $triggerIds = [];
 
         foreach ($existingTriggers as $trigger) {
             $triggerFlags[$trigger['name']] = true;
+            $triggerIds[$trigger['name']] = $trigger['triggerId'];
         }
 
         $triggersToCreate = $this->_getConversionTriggers();
 
         foreach ($triggersToCreate as $name => $options) {
-            /** Ignore already created triggers */
-            if (isset($triggerFlags[$name])) continue;
             try {
-                $response = $this->_createTrigger($accountId, $containerId, $options);
-                if ($response['triggerId']) {
-                    $result[] = __('Successfully created Conversion Tracking trigger: ') . $response['name'];
+                /** Update already created triggers */
+                if (isset($triggerFlags[$name])) {
+                    $response = $this->_updateTrigger($accountId, $containerId, $options, $triggerIds[$name]);
+                    if ($response['triggerId']) {
+                        $result[] = __('Successfully updated Conversion Tracking trigger: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error updating Conversion Tracking trigger: ') . $response['name'];
+                    }
                 } else {
-                    $result[] = __('Error creating Conversion Tracking trigger: ') . $response['name'];
+                    $response = $this->_createTrigger($accountId, $containerId, $options);
+                    if ($response['triggerId']) {
+                        $result[] = __('Successfully created Conversion Tracking trigger: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error creating Conversion Tracking trigger: ') . $response['name'];
+                    }
                 }
             } catch (\Exception $ex) {
                 $result[] = $ex->getMessage();
@@ -129,24 +149,35 @@ class ConversionTracking extends \WeltPixel\GoogleTagManager\Model\Api
         $existingTags = $this->_getExistingTags($accountId, $containerId);
         $result = [];
         $tagFlags = [];
-
+        $tagIds = [];
 
         foreach ($existingTags as $tag) {
             $tagFlags[$tag['name']] = true;
+            $tagIds[$tag['name']] = $tag['tagId'];
         }
+
 
         $triggersMapping = $this->_getTriggersMapping($accountId, $containerId);
         $tagsToCreate = $this->_getConversionTags($triggersMapping, $params);
 
         foreach ($tagsToCreate as $name => $options) {
-            /** Ignore already created tags */
-            if (isset($tagFlags[$name])) continue;
             try {
-                $response = $this->_createTag($accountId, $containerId, $options);
-                if ($response['tagId']) {
-                    $result[] = __('Successfully created Conversion Tracking tag: ') . $response['name'];
+                /** Update already created tags */
+                if (isset($tagFlags[$name])) {
+                    $response = $this->_updateTag($accountId, $containerId, $options, $tagIds[$name]);
+                    if ($response['tagId']) {
+                        $result[] = __('Successfully updated Conversion Tracking tag: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error updating Conversion Tracking tag: ') . $response['name'];
+                    }
+
                 } else {
-                    $result[] = __('Error creating Conversion Tracking tag: ') . $response['name'];
+                    $response = $this->_createTag($accountId, $containerId, $options);
+                    if ($response['tagId']) {
+                        $result[] = __('Successfully created Conversion Tracking tag: ') . $response['name'];
+                    } else {
+                        $result[] = __('Error creating Conversion Tracking tag: ') . $response['name'];
+                    }
                 }
             } catch (\Exception $ex) {
                 $result[] = $ex->getMessage();
@@ -174,13 +205,13 @@ class ConversionTracking extends \WeltPixel\GoogleTagManager\Model\Api
                     (
                         'type' => 'integer',
                         'key' => 'dataLayerVersion',
-                        'value' => 2
+                        'value' => "2"
                     ),
                     array
                     (
                         'type' => 'boolean',
                         'key' => 'setDefaultValue',
-                        'value' => false
+                        'value' => "false"
                     ),
                     array
                     (
@@ -200,13 +231,13 @@ class ConversionTracking extends \WeltPixel\GoogleTagManager\Model\Api
                     (
                         'type' => 'integer',
                         'key' => 'dataLayerVersion',
-                        'value' => 2
+                        'value' => "2"
                     ),
                     array
                     (
                         'type' => 'boolean',
                         'key' => 'setDefaultValue',
-                        'value' => false
+                        'value' => "false"
                     ),
                     array
                     (
@@ -285,7 +316,7 @@ class ConversionTracking extends \WeltPixel\GoogleTagManager\Model\Api
                     (
                         'type' => 'boolean',
                         'key' => 'enableConversionLinker',
-                        'value' => true
+                        'value' => "true"
                     ),
                     array
                     (

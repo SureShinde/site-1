@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <section id="weltpixel_googletagmanager" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Google Analytics Enhanced Ecommerce</label>
+            <label>Google Analytics Enhanced Ecommerce Pro</label>
             <tab>weltpixel</tab>
             <resource>WeltPixel_GoogleTagManager::GoogleTagManagerSettings</resource>
             <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -54,9 +54,43 @@
                         <field id="enable">1</field>
                     </depends>
                 </field>
+                <field id="enable_variant" translate="label" type="select" sortOrder="63" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Variant</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
                 <field id="order_total_calculation" translate="label" type="select" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Order Success Page Total Calculation</label>
                     <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\OrderTotalCalculation</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="exclude_tax_from_transaction" translate="label comment" type="select" sortOrder="66" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude Tax From Transaction</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="order_total_calculation">grandtotal</field>
+                    </depends>
+                    <comment>Tax will be deduced from Grand Total</comment>
+                </field>
+                <field id="exclude_shipping_from_transaction" translate="label comment" type="select" sortOrder="67" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude Shipping From Transaction</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="order_total_calculation">grandtotal</field>
+                    </depends>
+                    <comment>Shipping charges will deduced from Grand Total</comment>
+                </field>
+                <field id="product_click_tracking" translate="label" type="select" sortOrder="68" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Measure Product Clicks</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[This option allows ‘Product Click’ tracking on Category Page , Search results page and Related/Cross-sell/Up-sell product grids. <br/>
+If Product Click Tracking is enabled this option rewrites Magento_Catalog::product/list.phtml and Magento_Catalog::product/list/list.phtml. <br/> If you are using a custom theme/extension already re-writing this templates check here how you can make the necessary compatibility adjustments: <br/> <a target="_blank" href="https://support.weltpixel.com/hc/en-us/articles/115006195028-How-to-solve-compatibility-issues-Google-Tag-Manager-Enhanced-Ecommerce">How to solve GTM compatibility issues</a>]]></comment>
                     <depends>
                         <field id="enable">1</field>
                     </depends>
@@ -69,16 +103,25 @@
                         <field id="enable">1</field>
                     </depends>
                 </field>
-                <field id="exclude_tax_from_transaction" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Exclude Tax From Transaction</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <field id="persistentlayer_expiry" translate="label" type="text" sortOrder="72" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Persistent datalayer expiry time</label>
                     <depends>
                         <field id="enable">1</field>
                     </depends>
+                    <validate>required number</validate>
+                    <comment>The specified value represents minutes.</comment>
                 </field>
-                <field id="exclude_shipping_from_transaction" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Exclude Shipping From Transaction</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                <field id="parent_vs_child" translate="label" type="select" sortOrder="105" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Child vs Parent</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\ParentVsChild</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                    <comment>Send Parent Id or Child id cart, checkout and thank you page</comment>
+                </field>
+                <field id="separator_user_dimensions" translate="button_label" type="text" sortOrder="109" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\SeparatorElement</frontend_model>
+                    <button_label>User Scoped Custom Dimensions</button_label>
                     <depends>
                         <field id="enable">1</field>
                     </depends>
@@ -90,6 +133,14 @@
                         <field id="enable">1</field>
                     </depends>
                 </field>
+                <field id="custom_dimension_customerid_indexnumber" translate="label" type="select" sortOrder="112" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Dimension - Customer ID Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="custom_dimension_customerid">1</field>
+                    </depends>
+                </field>
                 <field id="custom_dimension_customergroup" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Custom Dimension - Customer Group</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -97,11 +148,379 @@
                         <field id="enable">1</field>
                     </depends>
                 </field>
-                <field id="custom_dimension_stockstatus" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Custom Dimension - Stock Status (instock/out of stock)</label>
+                <field id="custom_dimension_customergroup_indexnumber" translate="label" type="select" sortOrder="122" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Dimension - Customer Group Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="custom_dimension_customergroup">1</field>
+                    </depends>
+                </field>
+                <field id="separator_hitscoped_dimensions" translate="button_label" type="text" sortOrder="169" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\SeparatorElement</frontend_model>
+                    <button_label>Hit Scoped Custom Dimensions</button_label>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="custom_dimension_pagename" translate="label" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Dimension - Page Name</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <depends>
                         <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="custom_dimension_pagetype" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Dimension - Page Type</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="custom_dimension_pagetype_indexnumber" translate="label" type="select" sortOrder="182" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Dimension - Page Type Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="custom_dimension_pagetype">1</field>
+                    </depends>
+                </field>
+                <field id="separator_product_dimensions" translate="button_label" type="text" sortOrder="198" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\SeparatorElement</frontend_model>
+                    <button_label>Product Scoped Custom Dimensions</button_label>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="separator_stock_status" translate="label" type="text" sortOrder="199" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_stockstatus" translate="label comment" type="select" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Stock Status (instock/out of stock)</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_stockstatus_indexnumber" translate="label comment" type="select" sortOrder="204" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Stock Status Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_stockstatus">1</field>
+                    </depends>
+                </field>
+                <field id="separator_reviews_count" translate="label" type="text" sortOrder="209" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_reviewscount" translate="label" type="select" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Reviews Count</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_reviewscount_indexnumber" translate="label comment" type="select" sortOrder="214" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Reviews Count Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_reviewscount">1</field>
+                    </depends>
+                </field>
+                <field id="separator_reviews_score" translate="label" type="text" sortOrder="219" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_reviewsscore" translate="label" type="select" sortOrder="220" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Reviews Score</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_reviewsscore_indexnumber" translate="label comment" type="select" sortOrder="224" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Reviews Score Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_reviewsscore">1</field>
+                    </depends>
+                </field>
+                <field id="separator_sale_product" translate="label" type="text" sortOrder="229" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_saleproduct" translate="label comment" type="select" sortOrder="230" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Sale Product</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                    <comment>Magento's Sale Product Attribute value is used here</comment>
+                </field>
+                <field id="track_saleproduct_indexnumber" translate="label comment" type="select" sortOrder="234" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Sale Product Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_saleproduct">1</field>
+                    </depends>
+                </field>
+                <field id="separator_product_attribute_custom_dimensions" translate="button_label" type="text" sortOrder="300" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\SeparatorElement</frontend_model>
+                    <button_label>Custom Attribute as Custom Dimension / Metric</button_label>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="separator_custom_attribute_1" translate="label" type="text" sortOrder="310" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_1" translate="label" type="select" sortOrder="315" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 1</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_1_name" translate="label" type="text" sortOrder="316" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 1 Name</label>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_1">1</field>
+                    </depends>
+                    <validate>validate-alphanum-with-spaces</validate>
+                </field>
+                <field id="track_custom_attribute_1_code" translate="label" type="select" sortOrder="317" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 1</label>
+                    <comment>Only attributes with Used in Product Listing set to Yes are availble here.</comment>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\AttributeCollection</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_1">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_1_type" translate="label comment" type="select" sortOrder="320" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 1 Type</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\TrackType</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_1">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_1_indexnumber" translate="label comment" type="select" sortOrder="325" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 1 Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_1">1</field>
+                    </depends>
+                </field>
+                <field id="separator_custom_attribute_2" translate="label" type="text" sortOrder="330" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_2" translate="label" type="select" sortOrder="335" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 2</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_2_name" translate="label" type="text" sortOrder="337" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 2 Name</label>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_2">1</field>
+                    </depends>
+                    <validate>validate-alphanum-with-spaces</validate>
+                </field>
+                <field id="track_custom_attribute_2_code" translate="label" type="select" sortOrder="338" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 2</label>
+                    <comment>Only attributes with Used in Product Listing set to Yes are availble here.</comment>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\AttributeCollection</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_2">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_2_type" translate="label comment" type="select" sortOrder="340" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 2 Type</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\TrackType</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_2">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_2_indexnumber" translate="label comment" type="select" sortOrder="345" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 2 Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_2">1</field>
+                    </depends>
+                </field>
+                <field id="separator_custom_attribute_3" translate="label" type="text" sortOrder="348" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_3" translate="label" type="select" sortOrder="350" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 3</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_3_name" translate="label" type="text" sortOrder="354" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 3 Name</label>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_3">1</field>
+                    </depends>
+                    <validate>validate-alphanum-with-spaces</validate>
+                </field>
+                <field id="track_custom_attribute_3_code" translate="label" type="select" sortOrder="355" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 3</label>
+                    <comment>Only attributes with Used in Product Listing set to Yes are availble here.</comment>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\AttributeCollection</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_3">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_3_type" translate="label comment" type="select" sortOrder="360" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 3 Type</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\TrackType</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_3">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_3_indexnumber" translate="label comment" type="select" sortOrder="365" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 3 Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_3">1</field>
+                    </depends>
+                </field>
+                <field id="separator_custom_attribute_4" translate="label" type="text" sortOrder="368" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_4" translate="label" type="select" sortOrder="370" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 4</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_4_name" translate="label" type="text" sortOrder="374" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 4 Name</label>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_4">1</field>
+                    </depends>
+                    <validate>validate-alphanum-with-spaces</validate>
+                </field>
+                <field id="track_custom_attribute_4_code" translate="label" type="select" sortOrder="375" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 4</label>
+                    <comment>Only attributes with Used in Product Listing set to Yes are availble here.</comment>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\AttributeCollection</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_4">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_4_type" translate="label comment" type="select" sortOrder="380" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 4 Type</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\TrackType</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_4">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_4_indexnumber" translate="label comment" type="select" sortOrder="385" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 4 Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_4">1</field>
+                    </depends>
+                </field>
+                <field id="separator_custom_attribute_5" translate="label" type="text" sortOrder="388" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>WeltPixel\GoogleTagManager\Block\Adminhtml\System\Config\DimensionSeparator</frontend_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_5" translate="label" type="select" sortOrder="390" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 5</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_5_name" translate="label" type="text" sortOrder="393" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 5 Name</label>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_5">1</field>
+                    </depends>
+                    <validate>validate-alphanum-with-spaces</validate>
+                </field>
+                <field id="track_custom_attribute_5_code" translate="label" type="select" sortOrder="395" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Attribute 5</label>
+                    <comment>Only attributes with Used in Product Listing set to Yes are availble here.</comment>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\AttributeCollection</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_5">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_5_type" translate="label comment" type="select" sortOrder="400" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 5 Type</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\TrackType</source_model>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_5">1</field>
+                    </depends>
+                </field>
+                <field id="track_custom_attribute_5_indexnumber" translate="label comment" type="select" sortOrder="405" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Track Custom Attribute 5 Index Number</label>
+                    <source_model>WeltPixel\GoogleTagManager\Model\Config\Source\IndexNumber</source_model>
+                    <comment>This must match the index number set in Google Analytics</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                        <field id="track_custom_attribute_5">1</field>
                     </depends>
                 </field>
             </group>
@@ -124,6 +543,10 @@
                 </field>
                 <field id="ip_anonymization" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>I.P Anonymization</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="display_advertising" translate="label" type="select" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Display Advertising Features</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="api_container" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">

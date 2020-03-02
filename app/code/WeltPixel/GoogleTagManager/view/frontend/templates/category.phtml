@@ -12,7 +12,7 @@
             <?php $categoryProduct = array(); ?>
             <?php $categoryProduct['name'] = html_entity_decode($product->getName()); ?>
             <?php $categoryProduct['id'] = $helper->getGtmProductId($product); ?>
-            <?php $categoryProduct['price'] = number_format($product->getFinalPrice(), 2, '.', ''); ?>
+            <?php $categoryProduct['price'] = number_format($product->getPriceInfo()->getPrice('final_price')->getValue(), 2, '.', ''); ?>
             <?php if ($helper->isBrandEnabled()) : ?>
             <?php $categoryProduct['brand'] = $helper->getGtmBrand($product); ?>
             <?php endif;?>
@@ -27,6 +27,7 @@
         <?php $this->setDataLayerOption('event', 'impression'); ?>
         <?php $this->setDataLayerOption('eventCategory', 'Ecommerce'); ?>
         <?php $this->setDataLayerOption('eventAction', 'Impression'); ?>
+        <?php $this->setDataLayerOption('eventLabel',  \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_CATEGORY . ' ' . $helper->getGtmCategory($category)); ?>
     <?php endif; ?>
 
     <?php if ($helper->isAdWordsRemarketingEnabled()): ?>

@@ -15,7 +15,7 @@ class Cart extends \WeltPixel\GoogleTagManager\Block\Core
         $crosselProductListBlock = $this->_layout->getBlock('checkout.cart.crosssell');
 
         if (empty($crosselProductListBlock)) {
-            return null;
+            return [];
         }
         $crosselProductListBlock->toHtml();
 
@@ -30,8 +30,20 @@ class Cart extends \WeltPixel\GoogleTagManager\Block\Core
         $quote = $this->getQuote();
         $products = [];
 
+        $displayOption = $this->helper->getParentOrChildIdUsage();
+
         foreach ($quote->getAllVisibleItems() as $item) {
             $product = $item->getProduct();
+
+            if ($displayOption == \WeltPixel\GoogleTagManager\Model\Config\Source\ParentVsChild::CHILD) {
+                if ($item->getProductType() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+                    $children = $item->getChildren();
+                    foreach ($children as $child) {
+                        $product = $child->getProduct();
+                    }
+                }
+            }
+
             $products[] = $this->helper->getGtmProductId($product);
         }
 
@@ -43,6 +55,6 @@ class Cart extends \WeltPixel\GoogleTagManager\Block\Core
      */
     public function getCartTotal() {
         $quote = $this->getQuote();
-        return $quote->getBaseSubtotal();
+        return $quote->getGrandTotal();
     }
 }

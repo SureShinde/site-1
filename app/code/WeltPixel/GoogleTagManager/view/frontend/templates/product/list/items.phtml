@@ -214,14 +214,14 @@ switch ($type = $block->getType()) {
                                         <?php echo $block->getReviewsSummaryHtml($_item, $templateType) ?>
                                     <?php endif; ?>
 
-                                    <?php if (!$_item->isComposite() && $_item->isSaleable() && $type == 'related'): ?>
-                                        <?php if (!$_item->getRequiredOptions()): ?>
-                                            <div class="field choice related">
-                                                <input type="checkbox" class="checkbox related" id="related-checkbox<?php /* @escapeNotVerified */ echo $_item->getId() ?>" name="related_products[]" value="<?php /* @escapeNotVerified */ echo $_item->getId() ?>" />
-                                                <label class="label" for="related-checkbox<?php /* @escapeNotVerified */ echo $_item->getId() ?>"><span><?php /* @escapeNotVerified */ echo __('Add to Cart') ?></span></label>
-                                            </div>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
+                            <?php if ($canItemsAddToCart && !$_item->isComposite() && $_item->isSaleable() && $type == 'related'): ?>
+                                <?php if (!$_item->getRequiredOptions()): ?>
+                                    <div class="field choice related">
+                                        <input type="checkbox" class="checkbox related" id="related-checkbox<?= /* @escapeNotVerified */ $_item->getId() ?>" name="related_products[]" value="<?= /* @escapeNotVerified */ $_item->getId() ?>" />
+                                        <label class="label" for="related-checkbox<?= /* @escapeNotVerified */ $_item->getId() ?>"><span><?= /* @escapeNotVerified */ __('Add to Cart') ?></span></label>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
 
                                     <?php if ($showAddTo || $showCart): ?>
                                         <div class="product actions product-item-actions">

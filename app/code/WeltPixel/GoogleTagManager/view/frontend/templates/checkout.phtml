@@ -12,6 +12,7 @@
         'option' => '' // @TODO Some value can be added
     ];
     $checkoutData['products'] = $products;
+    $checkoutData['currencyCode'] = $this->getCurrencyCode();
 
     $this->setDataLayerOption('event', 'checkout');
     $this->setEcommerceData('checkout', $checkoutData);

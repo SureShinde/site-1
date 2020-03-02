@@ -17,20 +17,37 @@ class Core extends \Magento\Framework\View\Element\Template
     protected $storage;
 
     /**
+     * @var \WeltPixel\GoogleTagManager\Model\Dimension
+     */
+    protected $dimensionModel;
+
+    /**
+     * @var \WeltPixel\GoogleTagManager\Model\CookieManager
+     */
+    protected $cookieManager;
+
+
+    /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \WeltPixel\GoogleTagManager\Helper\Data $helper
      * @param \WeltPixel\GoogleTagManager\Model\Storage $storage
+     * @param \WeltPixel\GoogleTagManager\Model\Dimension $dimensionModel
+     * @param \WeltPixel\GoogleTagManager\Model\CookieManager $cookieManager
      * @param array $data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \WeltPixel\GoogleTagManager\Helper\Data $helper,
         \WeltPixel\GoogleTagManager\Model\Storage $storage,
+        \WeltPixel\GoogleTagManager\Model\Dimension $dimensionModel,
+        \WeltPixel\GoogleTagManager\Model\CookieManager $cookieManager,
         array $data = []
     )
     {
         $this->helper = $helper;
         $this->storage = $storage;
+        $this->dimensionModel = $dimensionModel;
+        $this->cookieManager = $cookieManager;
         parent::__construct($context, $data);
     }
 
@@ -141,6 +158,10 @@ class Core extends \Magento\Framework\View\Element\Template
 
         if (isset($options['ecommerce']['impressions'])) {
             $currencyCode = $options['ecommerce']['currencyCode'];
+            $eventLabel = '';
+            if (isset($options['eventLabel'])) {
+                $eventLabel = $options['eventLabel'];
+            }
             $originalImpressions = $options['ecommerce']['impressions'];
             $impressionsCount = count($originalImpressions);
             if ($impressionsCount <= $chunkLimit) {
@@ -148,7 +169,7 @@ class Core extends \Magento\Framework\View\Element\Template
                 return $result;
             }
 
-            $impressionChunks =array_chunk($originalImpressions, $chunkLimit);
+            $impressionChunks = array_chunk($originalImpressions, $chunkLimit);
             $options['ecommerce']['impressions'] = $impressionChunks[0];
             $result[] = $options;
 
@@ -158,6 +179,12 @@ class Core extends \Magento\Framework\View\Element\Template
                 $newImpressionChunk['ecommerce'] = [];
                 $newImpressionChunk['ecommerce']['currencyCode'] = $currencyCode;
                 $newImpressionChunk['ecommerce']['impressions'] = $impressionChunks[$i];
+
+                $newImpressionChunk['event'] = 'impression';
+                $newImpressionChunk['eventCategory'] = 'Ecommerce';
+                $newImpressionChunk['eventAction'] = 'Impression';
+                $newImpressionChunk['eventLabel'] = $eventLabel;
+
                 $result[] = $newImpressionChunk;
             }
 
@@ -168,4 +195,19 @@ class Core extends \Magento\Framework\View\Element\Template
         }
     }
 
+    /**
+     * @param \Magento\Catalog\Model\Product $product
+     * @return array
+     */
+    public function getProductDimensions($product) {
+        return $this->dimensionModel->getProductDimensions($product, $this->helper);
+    }
+
+    /**
+     * @return string
+     */
+    public function getWpCookiesForJs() {
+        $cookies = $this->cookieManager->getWpCookies();
+        return implode(',', array_map(function ($a) { return "'" . $a . "'"; } ,$cookies));
+    }
 }

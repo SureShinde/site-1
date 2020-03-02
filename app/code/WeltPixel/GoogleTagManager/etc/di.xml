@@ -13,4 +13,16 @@
         <plugin name="weltpixel-googletagmanager-checkout-guestpaymentinformation"
                 type="WeltPixel\GoogleTagManager\Plugin\GuestPaymentInformation" sortOrder="10"/>
     </type>
+    <type name="Magento\Wishlist\Model\Item">
+        <plugin name="weltpixel-googletagmanager-wishlist-addtocart"
+                type="WeltPixel\GoogleTagManager\Plugin\WishlistAddToCart" sortOrder="10"/>
+    </type>
+    <type name="Magento\Quote\Model\Quote\Config">
+        <plugin name="weltpixel-googletagmanager-quote-config"
+                type="WeltPixel\GoogleTagManager\Plugin\QuoteConfig" sortOrder="10"/>
+    </type>
+    <type name="Magento\Framework\App\Http\Context">
+        <plugin name="weltpixel-googletagmanager-context"
+                type="WeltPixel\GoogleTagManager\Plugin\HttpContext" sortOrder="1"/>
+    </type>
 </config>

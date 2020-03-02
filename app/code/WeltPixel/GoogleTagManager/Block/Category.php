@@ -15,7 +15,7 @@ class Category extends \WeltPixel\GoogleTagManager\Block\Core
         $categoryProductListBlock = $this->_layout->getBlock('category.products.list');
 
         if (empty($categoryProductListBlock)) {
-            return null;
+            return [];
         }
 
         // Fetch the current collection from the block and set pagination

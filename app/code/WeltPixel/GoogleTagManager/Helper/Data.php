@@ -8,6 +8,8 @@ namespace WeltPixel\GoogleTagManager\Helper;
  */
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+
+    const CACHE_ID_CATEGORIES = 'weltpixel_gtm_cached_categories';
     /**
      * @var array
      */
@@ -74,6 +76,36 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $cookieHelper;
 
     /**
+     * @var \Magento\Catalog\Helper\Product\Configuration
+     */
+    protected $configurationHelper;
+
+    /**
+     * @var \Magento\Catalog\Api\ProductCustomOptionRepositoryInterface
+     */
+    protected $productOptionRepository;
+
+    /**
+     * @var \Magento\Framework\View\Page\Config
+     */
+    protected $pageConfig;
+
+    /**
+     * @var \WeltPixel\GoogleTagManager\Model\Dimension
+     */
+    protected $dimensionModel;
+
+    /**
+     * @var \Magento\Framework\App\CacheInterface
+     */
+    protected $cache;
+
+    /**
+     * @var  \Magento\Framework\App\Cache\StateInterface
+     */
+    protected $cacheState;
+
+    /**
      * Data constructor.
      * @param \Magento\Framework\App\Helper\Context $context
      * @param \Magento\Framework\View\Element\BlockFactory $blockFactory
@@ -87,6 +119,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Checkout\Model\Session\SuccessValidator $checkoutSuccessValidator
      * @param \WeltPixel\GoogleTagManager\Model\Storage $storage
      * @param \Magento\Cookie\Helper\Cookie $cookieHelper
+     * @param \Magento\Catalog\Helper\Product\Configuration $configurationHelper
+     * @param \Magento\Catalog\Api\ProductCustomOptionRepositoryInterface $productOptionRepository
+     * @param \Magento\Framework\View\Page\Config $pageConfig
+     * @param \WeltPixel\GoogleTagManager\Model\Dimension $dimensionModel
+     * @param \Magento\Framework\App\CacheInterface $cache
+     * @param \Magento\Framework\App\Cache\StateInterface $cacheState
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -100,7 +138,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Checkout\Model\Session\SuccessValidator $checkoutSuccessValidator,
         \WeltPixel\GoogleTagManager\Model\Storage $storage,
-        \Magento\Cookie\Helper\Cookie $cookieHelper
+        \Magento\Cookie\Helper\Cookie $cookieHelper,
+        \Magento\Catalog\Helper\Product\Configuration $configurationHelper,
+        \Magento\Catalog\Api\ProductCustomOptionRepositoryInterface $productOptionRepository,
+        \Magento\Framework\View\Page\Config $pageConfig,
+        \WeltPixel\GoogleTagManager\Model\Dimension $dimensionModel,
+        \Magento\Framework\App\CacheInterface $cache,
+        \Magento\Framework\App\Cache\StateInterface $cacheState
     )
     {
         parent::__construct($context);
@@ -117,7 +161,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->checkoutSuccessValidator = $checkoutSuccessValidator;
         $this->storage = $storage;
         $this->cookieHelper = $cookieHelper;
-        $this->_populateStoreCategories();
+        $this->configurationHelper = $configurationHelper;
+        $this->productOptionRepository = $productOptionRepository;
+        $this->pageConfig = $pageConfig;
+        $this->dimensionModel = $dimensionModel;
+        $this->cache = $cache;
+        $this->cacheState = $cacheState;
     }
 
 
@@ -126,8 +175,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     private function _populateStoreCategories()
     {
+        if (!$this->isEnabled() || !empty($this->storeCategories)) return;
+
         $rootCategoryId = $this->storeManager->getStore()->getRootCategoryId();
         $storeId = $this->storeManager->getStore()->getStoreId();
+
+        $isWpGtmCacheEnabled = $this->cacheState->isEnabled(\WeltPixel\GoogleTagManager\Model\Cache\Type::TYPE_IDENTIFIER);
+        $cacheKey = self::CACHE_ID_CATEGORIES . '-' . $rootCategoryId . '-' . $storeId;
+        if ($isWpGtmCacheEnabled) {
+            $this->_eventManager->dispatch('weltpixel_googletagmanager_cachekey_after', ['cache_key' => $cacheKey]);
+
+            $cachedCategoriesData = $this->cache->load($cacheKey);
+            if ($cachedCategoriesData) {
+                $this->storeCategories = json_decode($cachedCategoriesData, true);
+                return;
+            }
+        }
 
         $categories = $this->categoryCollectionFactory->create()
             ->setStoreId($storeId)
@@ -135,7 +198,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ->addAttributeToSelect('name');
 
         foreach ($categories as $categ) {
-            $this->storeCategories[$categ->getData('entity_id')] = $categ->getData('name');
+            $this->storeCategories[$categ->getData('entity_id')] = [
+                'name' => $categ->getData('name'),
+                'path' => $categ->getData('path')
+            ];
+        }
+
+        if ($isWpGtmCacheEnabled) {
+            $cachedCategories = json_encode($this->storeCategories);
+            $this->cache->save($cachedCategories, $cacheKey, [\WeltPixel\GoogleTagManager\Model\Cache\Type::CACHE_TAG]);
         }
     }
 
@@ -150,9 +221,33 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @return boolean
      */
+    public function isProductClickTrackingEnabled()
+    {
+        return !$this->cookieHelper->isUserNotAllowSaveCookie() && $this->_gtmOptions['general']['product_click_tracking'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getBrandAttribute()
+    {
+        return $this->_gtmOptions['general']['brand_attribute'];
+    }
+
+    /**
+     * @return boolean
+     */
     public function trackPromotions()
     {
         return $this->_gtmOptions['general']['promotion_tracking'];
+    }
+
+     /**
+     * @return int
+     */
+    public function getPersistentStorageExpiryTime()
+    {
+        return $this->_gtmOptions['general']['persistentlayer_expiry'];
     }
 
     /**
@@ -171,6 +266,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->_gtmOptions['general']['exclude_shipping_from_transaction'];
     }
 
+    /**
+     * return child or parent string
+     * @return string
+     */
+    public function getParentOrChildIdUsage()
+    {
+        return $this->_gtmOptions['general']['parent_vs_child'];
+    }
 
     /**
      * @return int
@@ -251,18 +354,37 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function addDefaultInformation()
     {
-        if (!$this->isAdWordsRemarketingEnabled()) {
-            return;
+        $actionName = $this->_request->getFullActionName();
+
+        if ($this->isCustomDimensionPageNameEnabled()) {
+            if ($this->pageConfig) {
+                $pageTitle = $this->pageConfig->getTitle()->get();
+                $this->storage->setData('pageName', $pageTitle);
+            }
+        }
+
+        if ($this->isCustomDimensionPageTypeEnabled()) {
+            $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_OTHER;
+            switch ($actionName) {
+                case 'cms_index_index' :
+                    $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_HOME;
+                    break;
+                case 'checkout_index_index' :
+                case 'firecheckout_index_index' :
+                    $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_CART;
+                    break;
+            }
+            $this->storage->setData('pageType', $pageType);
         }
 
         if ($this->isAdWordsRemarketingEnabled()) {
-            $actionName = $this->_request->getFullActionName();
             $remarketingData = [];
             switch ($actionName) {
                 case 'cms_index_index' :
                     $remarketingData['ecomm_pagetype'] = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_HOME;
                     break;
                 case 'checkout_index_index' :
+                case 'firecheckout_index_index' :
                     $remarketingData['ecomm_pagetype'] = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_CART;
                     break;
                 default:
@@ -286,6 +408,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($categoryBlock) {
                 $categoryBlock->setCurrentCategory($currentCategory);
                 $categoryBlock->toHtml();
+            }
+
+            if ($this->isCustomDimensionPageTypeEnabled()) {
+                $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_CATEGORY;
+                $this->storage->setData('pageType', $pageType);
             }
         }
     }
@@ -311,7 +438,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         if ($moduleName == 'catalogsearch') {
+
+            if ($this->isCustomDimensionPageTypeEnabled()) {
+                $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_SEARCHRESULTS;
+                $this->storage->setData('pageType', $pageType);
+            }
+
             $searchBlock = $this->createBlock('Search', 'search.phtml');
+
             if ($searchBlock) {
                 $searchBlock->setListPrefix($listPrefix);
                 return $searchBlock->toHtml();
@@ -332,6 +466,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($productBlock) {
                 $productBlock->setCurrentProduct($currentProduct);
                 $productBlock->toHtml();
+            }
+
+            if ($this->isCustomDimensionPageTypeEnabled()) {
+                $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_PRODUCT;
+                $this->storage->setData('pageType', $pageType);
             }
         }
     }
@@ -362,6 +501,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $cartBlock->setQuote($quote);
                 $cartBlock->toHtml();
             }
+
+            if ($this->isCustomDimensionPageTypeEnabled()) {
+                $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_CART;
+                $this->storage->setData('pageType', $pageType);
+            }
         }
 
 
@@ -373,13 +517,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             DIRECTORY_SEPARATOR . $this->_request->getControllerName() .
             DIRECTORY_SEPARATOR . $this->_request->getActionName();
 
-        if ($requestPath == 'checkout/index/index') {
+        if ($requestPath == 'checkout/index/index' || $requestPath == 'firecheckout/index/index') {
             $checkoutBlock = $this->createBlock('Checkout', 'checkout.phtml');
 
             if ($checkoutBlock) {
                 $quote = $this->checkoutSession->getQuote();
                 $checkoutBlock->setQuote($quote);
                 $checkoutBlock->toHtml();
+            }
+
+            if ($this->isCustomDimensionPageTypeEnabled()) {
+                $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_CHECKOUT;
+                $this->storage->setData('pageType', $pageType);
             }
         }
     }
@@ -404,6 +553,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             $orderBlock->setOrder($order);
             $orderBlock->toHtml();
         }
+
+        if ($this->isCustomDimensionPageTypeEnabled()) {
+            $pageType = \WeltPixel\GoogleTagManager\Model\Api\Remarketing::ECOMM_PAGETYPE_PURCHASE;
+            $this->storage->setData('pageType', $pageType);
+        }
+
     }
 
     /**
@@ -412,20 +567,146 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getAffiliationName()
     {
         return $this->storeManager->getWebsite()->getName() . ' - ' .
-        $this->storeManager->getGroup()->getName() . ' - ' .
-        $this->storeManager->getStore()->getName();
+            $this->storeManager->getGroup()->getName() . ' - ' .
+            $this->storeManager->getStore()->getName();
+    }
+
+    /**
+     * @param $productOptions
+     * @param $productType
+     * @return bool|string
+     */
+    public function checkVariantForProductOptions($productOptions, $productType)
+    {
+        $variant = [];
+        if ($productType == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+            if (isset($productOptions['attributes_info'])) {
+                foreach ($productOptions['attributes_info'] as $attribute) {
+                    $variant[] = $attribute['label'] . ": " . $attribute['value'];
+                }
+            }
+        }
+
+        // Variant for Custom Options
+        if (isset($productOptions['options'])) {
+            foreach ($productOptions['options'] as $option) {
+                $variant[] = $option['label'] . ": " . $option['print_value'];
+            }
+        }
+
+        if ($variant) {
+            return implode(' | ', $variant);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param \Magento\Catalog\Model\Product $product
+     * @param array $buyRequest
+     * @param \Magento\Wishlist\Model\Item $wishlistItem
+     * @param boolean $checkForCustomOptions
+     * @return bool|string
+     */
+    public function checkVariantForProduct($product, $buyRequest = [], $wishlistItem = null, $checkForCustomOptions = false)
+    {
+        $variant = [];
+
+        /** get the configurable products variants, options */
+        if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+            $options = $product->getTypeInstance(true)->getSelectedAttributesInfo($product);
+            foreach ($options as $option) {
+                $variant[] = $option['label'] . ": " . $option['value'];
+            }
+
+
+            if (!$variant && isset($buyRequest['super_attribute'])) {
+                $superAttributeLabels = [];
+                $superAttributeOptions = [];
+                $_attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
+                foreach($_attributes as $_attribute){
+                    $superAttributeLabels[$_attribute['attribute_id']] = $_attribute['label'];
+                    foreach ($_attribute->getOptions() as $option) {
+                        $superAttributeOptions[$_attribute['attribute_id']][$option['value_index']] = $option['store_label'];
+                    }
+                }
+
+                foreach ($buyRequest['super_attribute'] as $id => $value) {
+                    $variant[] = $superAttributeLabels[$id] . ": " . $superAttributeOptions[$id][$value];
+                }
+            }
+        }
+
+        $customOptionFound = false;
+        /** This is for the custom options for products */
+        $_customOptions = $product->getTypeInstance(true)->getOrderOptions($product);
+        if(array_key_exists('options', $_customOptions)){
+            foreach($_customOptions['options'] as $option){
+                $customOptionFound = true;
+                $variant[] = $option['label'] . ": " . $option['print_value'];
+            }
+        }
+
+        if ($wishlistItem && !$customOptionFound) {
+            $options = $this->configurationHelper->getOptions($wishlistItem);
+            foreach ($options as $customOption) {
+                if (isset($customOption['print_value'])) {
+                    $variant[] = $customOption['label'] . ": " . $customOption['print_value'];
+                }
+
+            }
+        }
+
+        /** Wishlist add to cart with not preselected custom options */
+        if ($checkForCustomOptions && isset($buyRequest['options'])) {
+            $productOptions = $this->productOptionRepository->getProductOptions($product);
+            $productCustomOptionsLabel = [];
+            $productCustomOptionsValues = [];
+            foreach ($productOptions as $option) {
+                $productCustomOptionsLabel[$option['option_id']] = $option['title'];
+                if ($option->hasValues()) {
+                    $values = $option->getValues();
+                    foreach ($values as $value) {
+                        $productCustomOptionsValues[$option['option_id']][$value->getOptionTypeId()] = $value->getTitle();
+                    }
+                }
+            }
+
+            foreach ($buyRequest['options'] as $optionId => $optionValues) {
+                if (is_array($optionValues)) {
+                    $optValue = [];
+                    foreach ($optionValues as $value) {
+                        $optValue[] = $productCustomOptionsValues[$optionId][$value];
+                    }
+                    $variant[] = $productCustomOptionsLabel[$optionId] . ": " . implode(',', $optValue);
+                } elseif (isset($productCustomOptionsValues[$optionId])) {
+                    $variant[] = $productCustomOptionsLabel[$optionId] . ": " . $productCustomOptionsValues[$optionId][$optionValues];
+                } else {
+                    $variant[] = $productCustomOptionsLabel[$optionId] . ": " . $optionValues;
+                }
+            }
+        }
+
+        if ($variant) {
+            return implode(' | ', $variant);
+        }
+
+        return false;
     }
 
     /**
      * @param int $qty
      * @param \Magento\Catalog\Model\Product $product
+     * @param array $buyRequest
+     * @param boolean $checkForCustomOptions
      * @return array
      */
-    public function addToCartPushData($qty, $product)
+    public function addToCartPushData($qty, $product, $buyRequest = [], $checkForCustomOptions = false)
     {
         $result = [];
 
         $result['event'] = 'addToCart';
+        $result['eventLabel'] = html_entity_decode($product->getName());
         $result['ecommerce'] = [];
         $result['ecommerce']['currencyCode'] = $this->getCurrencyCode();
         $result['ecommerce']['add'] = [];
@@ -434,7 +715,13 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $productData = [];
         $productData['name'] = html_entity_decode($product->getName());
         $productData['id'] = $this->getGtmProductId($product);
-        $productData['price'] = number_format($product->getFinalPrice(), 2, '.', '');
+        if ($this->checkoutSession->getLastProductPrice()) {
+            $productData['price'] = number_format($this->checkoutSession->getLastProductPrice(), 2, '.', '');
+            $this->checkoutSession->setLastProductPrice(null);
+        } else {
+            $productData['price'] = number_format($product->getPriceInfo()->getPrice('final_price')->getValue(), 2, '.', '');
+        }
+
         if ($this->isBrandEnabled()) {
             $productData['brand'] = $this->getGtmBrand($product);
         }
@@ -442,9 +729,42 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $productData['category'] = $this->getGtmCategoryFromCategoryIds($product->getCategoryIds());
         $productData['quantity'] = $qty;
 
+        /**  Set the custom dimensions */
+        $customDimensions = $this->dimensionModel->getProductDimensions($product, $this);
+        foreach ($customDimensions as $name => $value) :
+            $productData[$name] = $value;
+        endforeach;
+
+
+        if ($this->isVariantEnabled()) {
+            $variant = $this->checkVariantForProduct($product, $buyRequest, null, $checkForCustomOptions);
+            if ($variant) {
+                $productData['variant'] = $variant;
+            }
+        }
+
         $result['ecommerce']['add']['products'][] = $productData;
 
         return $result;
+    }
+
+
+    /**
+     * @param array $currentAddToCartData
+     * @param array $addToCartPushData
+     * @return array
+     */
+    public function mergeAddToCartPushData($currentAddToCartData, $addToCartPushData)
+    {
+        if (!is_array($currentAddToCartData)) {
+            $currentAddToCartData = $addToCartPushData;
+        } else {
+            $currentAddToCartData['eventLabel'] = $currentAddToCartData['eventLabel'] . ', ' . $addToCartPushData['eventLabel'];
+            $currentAddToCartData['ecommerce']['add']['products'][] = $addToCartPushData['ecommerce']['add']['products'][0];
+        }
+
+        return $currentAddToCartData;
+
     }
 
     /**
@@ -467,7 +787,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         switch ($idOption) {
             case 'sku' :
-                $gtmProductId = $product->getSku();
+                $gtmProductId = $product->getData('sku');
                 break;
             case 'id' :
             default:
@@ -490,7 +810,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         switch ($idOption) {
             case 'sku' :
-                $gtmProductId = $item->getSku();
+                $gtmProductId = $item->getProduct()->getData('sku');//$item->getSku();
                 break;
             case 'id' :
             default:
@@ -507,6 +827,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function isBrandEnabled()
     {
         return $this->_gtmOptions['general']['enable_brand'];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isVariantEnabled()
+    {
+        return $this->_gtmOptions['general']['enable_variant'];
     }
 
     /**
@@ -550,8 +878,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (!count($categoryIds)) {
             return '';
         }
+
+        if (empty($this->storeCategories)) {
+            $this->_populateStoreCategories();
+        }
+
         $categoryId = $categoryIds[0];
-        $categoryPath = $this->resourceCategory->getCategoryPathById($categoryId);
+
+        $categoryPath = '';
+        if (isset($this->storeCategories[$categoryId])) {
+            $categoryPath = $this->storeCategories[$categoryId]['path'];
+        }
 
         return $this->_buildCategoryPath($categoryPath);
     }
@@ -568,7 +905,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         foreach ($categoriIds as $categoriId) {
             if (isset($this->storeCategories[$categoriId])) {
-                $categoriesWithNames[] = $this->storeCategories[$categoriId];
+                $categoriesWithNames[] = $this->storeCategories[$categoriId]['name'];
             }
         }
 
@@ -578,13 +915,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @param int $qty
      * @param \Magento\Catalog\Model\Product $product
+     * @param \Magento\Quote\Model\Quote\Item $quoteItem
      * @return array
      */
-    public function removeFromCartPushData($qty, $product)
+    public function removeFromCartPushData($qty, $product, $quoteItem)
     {
         $result = [];
 
         $result['event'] = 'removeFromCart';
+        $result['eventLabel'] = html_entity_decode($product->getName());
         $result['ecommerce'] = [];
         $result['ecommerce']['currencyCode'] = $this->getCurrencyCode();
         $result['ecommerce']['remove'] = [];
@@ -593,7 +932,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $productData = [];
         $productData['name'] = html_entity_decode($product->getName());
         $productData['id'] = $this->getGtmProductId($product);
-        $productData['price'] = number_format($product->getFinalPrice(), 2, '.', '');
+        $productData['price'] = number_format($quoteItem->getPrice(), 2, '.', '');
         if ($this->isBrandEnabled()) {
             $productData['brand'] = $this->getGtmBrand($product);
         }
@@ -601,10 +940,94 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $productData['category'] = $this->getGtmCategoryFromCategoryIds($product->getCategoryIds());
         $productData['quantity'] = $qty;
 
+        if ($this->isVariantEnabled()) {
+            $productFromQuote = $quoteItem->getProduct();
+            $variant = $this->checkVariantForProduct($productFromQuote);
+            if ($variant) {
+                $productData['variant'] = $variant;
+            }
+        }
+
         $result['ecommerce']['remove']['products'][] = $productData;
 
         return $result;
     }
+
+    /**
+     * @param \Magento\Catalog\Model\Product $product
+     * @param array $buyRequest
+     * @param \Magento\Wishlist\Model\Item $wishlistItem
+     * @return array
+     */
+    public function addToWishListPushData($product, $buyRequest, $wishlistItem)
+    {
+        $result = [];
+
+        $result['event'] = 'addToWishlist';
+        $result['eventLabel'] = html_entity_decode($product->getName());
+        $result['ecommerce'] = [];
+        $result['ecommerce']['currencyCode'] = $this->getCurrencyCode();
+        $result['ecommerce']['add'] = [];
+        $result['ecommerce']['add']['products'] = [];
+
+        $productData = [];
+        $productData['name'] = html_entity_decode($product->getName());
+        $productData['id'] = $this->getGtmProductId($product);
+        $productData['price'] = number_format($product->getPriceInfo()->getPrice('final_price')->getValue(), 2, '.', '');
+        if ($this->isBrandEnabled()) {
+            $productData['brand'] = $this->getGtmBrand($product);
+        }
+
+        $productData['category'] = $this->getGtmCategoryFromCategoryIds($product->getCategoryIds());
+
+        /**  Set the custom dimensions */
+        $customDimensions = $this->dimensionModel->getProductDimensions($product, $this);
+        foreach ($customDimensions as $name => $value) :
+            $productData[$name] = $value;
+        endforeach;
+
+        if ($this->isVariantEnabled()) {
+            $variant = $this->checkVariantForProduct($product, $buyRequest, $wishlistItem);
+            if ($variant) {
+                $productData['variant'] = $variant;
+            }
+        }
+
+        $result['ecommerce']['add']['products'][] = $productData;
+
+        return $result;
+    }
+
+    /**
+     * @param \Magento\Catalog\Model\Product $product
+     * @return array
+     */
+    public function addToComparePushData($product)
+    {
+        $result = [];
+
+        $result['event'] = 'addToCompare';
+        $result['eventLabel'] = html_entity_decode($product->getName());
+        $result['ecommerce'] = [];
+        $result['ecommerce']['currencyCode'] = $this->getCurrencyCode();
+        $result['ecommerce']['add'] = [];
+        $result['ecommerce']['add']['products'] = [];
+
+        $productData = [];
+        $productData['name'] = html_entity_decode($product->getName());
+        $productData['id'] = $this->getGtmProductId($product);
+        $productData['price'] = number_format($product->getPriceInfo()->getPrice('final_price')->getValue(), 2, '.', '');
+        if ($this->isBrandEnabled()) {
+            $productData['brand'] = $this->getGtmBrand($product);
+        }
+
+        $productData['category'] = $this->getGtmCategoryFromCategoryIds($product->getCategoryIds());
+
+        $result['ecommerce']['add']['products'][] = $productData;
+
+        return $result;
+    }
+
 
     /**
      * @param int $step
@@ -613,18 +1036,42 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function addCheckoutStepPushData($step, $checkoutOption)
     {
-        $result = [];
+        $checkoutStepResult = [];
 
-        $result['event'] = 'checkoutOption';
-        $result['ecommerce'] = [];
-        $result['ecommerce']['currencyCode'] = $this->getCurrencyCode();
-        $result['ecommerce']['checkout_option'] = [];
+        $checkoutStepResult['event'] = 'checkout';
+        $checkoutStepResult['ecommerce'] = [];
+        $checkoutStepResult['ecommerce']['currencyCode'] = $this->getCurrencyCode();
+        $checkoutStepResult['ecommerce']['checkout']['actionField'] =  [
+            'step' => $step,
+            'option' => $checkoutOption
+        ];
 
+
+        $products = [];
+        $checkoutBlock = $this->createBlock('Checkout', 'checkout.phtml');
+
+        if ($checkoutBlock) {
+            $quote = $this->checkoutSession->getQuote();
+            $checkoutBlock->setQuote($quote);
+            $products = $checkoutBlock->getProducts();
+        }
+
+        $checkoutStepResult['ecommerce']['checkout']['products'] = $products;
+
+
+        $checkoutOptionResult['event'] = 'checkoutOption';
+        $checkoutOptionResult['ecommerce'] = [];
+        $checkoutOptionResult['ecommerce']['currencyCode'] = $this->getCurrencyCode();
+        $checkoutOptionResult['ecommerce']['checkout_option'] = [];
         $optionData = [];
         $optionData['step'] = $step;
         $optionData['option'] = $checkoutOption;
+        $checkoutOptionResult['ecommerce']['checkout_option']['actionField'] = $optionData;
 
-        $result['ecommerce']['checkout_option']['actionField'] = $optionData;
+
+        $result = [];
+        $result[] = $checkoutStepResult;
+        $result[] = $checkoutOptionResult;
 
         return $result;
     }
@@ -648,10 +1095,84 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @return boolean
      */
-    public function isCustomDimensionStockStatusEnabled()
+    public function trackStockStatusEnabled()
     {
-        return $this->_gtmOptions['general']['custom_dimension_stockstatus'];
+        return $this->_gtmOptions['general']['track_stockstatus'];
     }
+
+
+    /**
+     * @return integer
+     */
+    public function getTrackStockStatusIndexNumber()
+    {
+        return $this->_gtmOptions['general']['track_stockstatus_indexnumber'];
+    }
+
+    /**
+     * @return boolean
+     */
+    public function trackReviewsCountEnabled()
+    {
+        return $this->_gtmOptions['general']['track_reviewscount'];
+    }
+
+    /**
+     * @return integer
+     */
+    public function getTrackReviewsCountIndexNumber()
+    {
+        return $this->_gtmOptions['general']['track_reviewscount_indexnumber'];
+    }
+
+    /**
+     * @return boolean
+     */
+    public function trackReviewsScoreEnabled()
+    {
+        return $this->_gtmOptions['general']['track_reviewsscore'];
+    }
+
+    /**
+     * @return integer
+     */
+    public function getTrackReviewsScoreIndexNumber()
+    {
+        return $this->_gtmOptions['general']['track_reviewsscore_indexnumber'];
+    }
+
+        /**
+     * @return boolean
+     */
+    public function trackSaleProductEnabled()
+    {
+        return $this->_gtmOptions['general']['track_saleproduct'];
+    }
+
+    /**
+     * @return integer
+     */
+    public function getTrackSaleProductIndexNumber()
+    {
+        return $this->_gtmOptions['general']['track_saleproduct_indexnumber'];
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isCustomDimensionPageNameEnabled()
+    {
+        return $this->_gtmOptions['general']['custom_dimension_pagename'];
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isCustomDimensionPageTypeEnabled()
+    {
+        return $this->_gtmOptions['general']['custom_dimension_pagetype'];
+    }
+
 
     /**
      * @return boolean
@@ -696,10 +1217,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                         DIRECTORY_SEPARATOR . $this->_request->getActionName();
                     switch ($requestPath) {
                         case 'catalogsearch/advanced/result':
-                            $list = __('Advanced Search Listing');
+                            $list = __('Advanced Search Result');
                             break;
                         case 'catalogsearch/result/index':
-                            $list = __('Search Listing');
+                            $list = __('Search Result');
                             break;
                     }
                 }
@@ -727,6 +1248,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getGtmCategory($category)
     {
         $categoryPath = $category->getData('path');
+        $this->_populateStoreCategories();
 
         return $this->_buildCategoryPath($categoryPath);
     }
@@ -737,5 +1259,77 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getDimensionsActionUrl()
     {
         return $this->storeManager->getStore()->getBaseUrl() . 'weltpixel_gtm/index/dimensions';
+    }
+
+    /**
+     * @param boolean $index
+     * @return boolean
+     */
+    public function trackCustomAttribute($index)
+    {
+        return $this->_gtmOptions['general']['track_custom_attribute_'. $index];
+    }
+
+    /**
+     * @param boolean $index
+     * @return string
+     */
+    public function getCustomAttributeCode($index)
+    {
+        return $this->_gtmOptions['general']['track_custom_attribute_'. $index . '_code'];
+    }
+
+    /**
+     * @param boolean $index
+     * @return string
+     */
+    public function getCustomAttributeName($index)
+    {
+        return $this->_gtmOptions['general']['track_custom_attribute_'. $index . '_name'];
+    }
+
+    /**
+     * @param boolean $index
+     * @return string
+     */
+    public function getCustomAttributeType($index)
+    {
+        return $this->_gtmOptions['general']['track_custom_attribute_'. $index . '_type'];
+    }
+
+    /**
+     * @param boolean $index
+     * @return string
+     */
+    public function getCustomAttributeIndexNumber($index)
+    {
+        return $this->_gtmOptions['general']['track_custom_attribute_'. $index . '_indexnumber'];
+    }
+
+    /**
+     * @param integer $index
+     * @param \Magento\Catalog\Model\Product $product
+     * @return string
+     */
+    public function getCustomAttributeValue($index, $product)
+    {
+        $attributeValue = '';
+        if ($this->trackCustomAttribute($index)) {
+            $attributeCode = $this->getCustomAttributeCode($index);
+            try {
+                $frontendValue = $product->getAttributeText($attributeCode);
+                if (is_array($frontendValue)) {
+                    $attributeValue = implode(',', $product->getAttributeText($attributeCode));
+                } else {
+                    $attributeValue = trim($product->getAttributeText($attributeCode));
+                }
+                if (!$attributeValue) {
+                    $attributeValue = $product->getData($attributeCode);
+                }
+            } catch (\Exception $e) {
+            }
+        }
+
+        return $attributeValue;
     }
 }

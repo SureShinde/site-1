@@ -25,7 +25,4 @@
     <action name="rest/*/V1/carts/*/payment-information">
         <section name="gtm"/>
     </action>
-    <action name="weltpixel_gtm/index/dimensions">
-        <section name="gtm"/>
-    </action>
 </config>
