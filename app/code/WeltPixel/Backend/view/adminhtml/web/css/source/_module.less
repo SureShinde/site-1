@@ -40,6 +40,8 @@
                         content: '\e633';
                         font-family: 'Admin Icons';
                         margin-left: 10px;
+                        vertical-align: baseline;
+                        font-size: 13px;
                     }
                 }
             }
@@ -63,7 +65,19 @@
                 margin-bottom: 1em;
                 .submenu-group-title {
                     margin-bottom: 0px;
-                    padding-bottom: 0.5em;                }
+                    padding: 0.7rem 0.5rem;
+                }
+            }
+            li {
+                min-width: 20rem;
+                &.level-1 {
+                    margin-left: 0.5rem;
+                    margin-right: 0.5rem;
+                    a {
+                        padding: 0.5rem 0.5rem;
+                        font-size: 13px;
+                    }
+                }
             }
         }
     }
@@ -131,7 +145,7 @@ iframe#launcher {
 }
 
 .col-rewrite-status {width: 160px;}
-.rewrite-status {
+.rewrite-status, .license-status {
     width: 100%;
     display: block;
     text-align: center;
@@ -142,10 +156,10 @@ iframe#launcher {
     border-radius: 10px;
     color: #FFF;
 }
-.rewrite-status-nok {
+.rewrite-status-nok, .license-status-nok {
     background-color: #ff0000;
 }
-.rewrite-status-ok {
+.rewrite-status-ok, .license-status-ok {
     background-color: #00aa00;
 }
 .module-title {
@@ -155,4 +169,83 @@ iframe#launcher {
     font-size: 12px;
     font-style: italic;
     font-weight: bold;
+}
+
+.license-container {
+    .admin__table-secondary {
+        background-color: #FFF;
+        tbody tr td {
+            background-color: #FFF;
+        }
+    }
+    .admin_table_filled {
+        background-color: #f1f1f1;
+        tbody tr td {
+            background-color: #f1f1f1;
+        }
+    }
+    th {
+        &.license-name {
+            width: 24%;
+        }
+        &.license-key {
+            width: 68%;
+        }
+        &.license-validity {
+            width: 8%;
+        }
+    }
+    td {
+        &.license-name {
+            width: 24%;
+            font-size: 16px;
+        }
+        &.license-key {
+            width: 68%;
+            word-break: break-all;
+        }
+        &.license-validity {
+            width: 8%;
+        }
+    }
+    .license-input {
+        width: 85%;
+        margin-right: 20px;
+    }
+}
+
+.system-infromation-container {
+    div {
+        margin: 5px 0;
+    }
+    .information-label {
+        text-align: right;
+        font-weight: bold;
+        padding-right: 2%;
+        width: 47%;
+    }
+}
+
+.license-pmsg {
+    padding: 20px 10px;
+    font-weight:700;
+    color: #fff;
+    letter-spacing:1px;
+    &.invalid-license-pmsg {
+        background: #f30d49;
+    }
+    &.valid-license-pmsg {
+        background: #359639;
+    }
+}
+
+.cronjob-details {
+    margin-top: 20px;
+    border: 1px solid;
+    padding: 10px;
+    table {
+        th, td {
+            text-align: right;
+        }
+    }
 }

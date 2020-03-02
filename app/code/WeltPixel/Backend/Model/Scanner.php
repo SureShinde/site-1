@@ -113,7 +113,9 @@ class Scanner extends \Magento\Framework\Model\AbstractModel
                 $originalClass = $node->getAttribute('for');
                 $rewriteClass = $node->getAttribute('type');
 
-                $rewrites[$originalClass][$areaCode][] = $rewriteClass;
+                if (!isset($rewrites[$originalClass]) || !isset($rewrites[$originalClass][$areaCode]) || !in_array($rewriteClass, $rewrites[$originalClass][$areaCode])) {
+                    $rewrites[$originalClass][$areaCode][] = $rewriteClass;
+                }
             }
         }
 

@@ -3,6 +3,7 @@
 <body>
     <referenceContainer name="before.body.end">
         <block class="Magento\Backend\Block\Template" template="WeltPixel_Backend::helpcenter/init.phtml"/>
+        <block class="Magento\Backend\Block\Template" template="WeltPixel_Backend::menu/adjustments.phtml"/>
     </referenceContainer>
 </body>
 </page>
