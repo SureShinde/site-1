@@ -4,7 +4,6 @@ return array (
   array (
     'Amasty_Base' => 1,
     'Amasty_Meta' => 1,
-    'Amasty_SeoHtmlSitemap' => 0,
     'Amasty_SeoToolKit' => 1,
     'Amasty_SeoSingleUrl' => 1,
     'Amasty_SeoRichData' => 1,
