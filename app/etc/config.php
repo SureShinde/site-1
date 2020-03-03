@@ -74,7 +74,6 @@ return array (
     'MageWorx_CustomerLocation' => 1,
     'MageWorx_CurrencySwitcher' => 1,
     'MageWorx_GeoLock' => 1,
-    'MageWorx_StoreSwitcher' => 0,
     'Magefan_LoginAsCustomer' => 1,
     'Magento_Sales' => 1,
     'Df_Catalog' => 1,
