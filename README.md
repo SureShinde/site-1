@@ -5,7 +5,8 @@
 bin/magento maintenance:enable      
 composer remove inkifi/consolidation
 composer remove inkifi/core
-composer remove inkifi/mediaclip
+composer remove inkifi/mediaclip 
+composer remove inkifi/mediaclip-legacy
 composer remove inkifi/missing-order  
 composer remove inkifi/pwinty
 composer remove inkifi/store   
@@ -13,7 +14,8 @@ rm -rf composer.lock
 composer clear-cache
 composer require inkifi/consolidation:*
 composer require inkifi/core:*
-composer require inkifi/mediaclip:*
+composer require inkifi/mediaclip:* 
+composer require inkifi/mediaclip-legacy:*
 composer require inkifi/missing-order:*  
 composer require inkifi/pwinty:*
 composer require inkifi/store:*  
