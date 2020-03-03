@@ -144,6 +144,12 @@ class License extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getLicenseMessage()
     {
+		// 2012-03-03 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+		// «License missing or invalid for the following WeltPixel module(s)»:
+		// https://github.com/inkifi/site/issues/3
+    	if (df_my_local()) {
+    		return false;
+		}
         if ($this->_request->isAjax()) {
             return false;
         }
