@@ -10,7 +10,6 @@ return array (
     'Amasty_SeoRichData' => 1,
     'Amasty_XmlSitemap' => 1,
     'Apptrian_PinterestPixel' => 1,
-    'Custom_Banner' => 0,
     'Magento_Store' => 1,
     'Magento_Directory' => 1,
     'Magento_AdminNotification' => 1,
