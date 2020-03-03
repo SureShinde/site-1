@@ -189,7 +189,6 @@ return array (
     'Mexbs_Tieredcoupon' => 1,
     'Nwdthemes_Base' => 1,
     'Nwdthemes_Revslider' => 1,
-    'OlegKoval_RegenerateUrlRewrites' => 1,
     'Pektsekye_OptionExtended' => 1,
     'ShipperHQ_Common' => 1,
     'ShipperHQ_Logger' => 1,

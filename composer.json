@@ -19,7 +19,6 @@
 		"inkifi/pwinty": "*",
 		"inkifi/store": "*",
 		"magepal/magento2-gmailsmtpapp": "*",
-		"olegkoval/magento2-regenerate-url-rewrites": "dev-master",
 		"pwinty/php-pwinty": "dev-master",
 		"stripe/stripe-php": "^6.29"
 	},
