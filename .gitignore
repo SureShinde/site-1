@@ -42,6 +42,11 @@
 # The file has been modified by someone at 2019-02-07:
 # 	«Sign Up for Newsletter» → «Join our mailing list. Photo tips, exclusive offers and more.»
 !vendor/magento/module-customer/view/frontend/templates/form/register.phtml
+# 2012-03-04 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «Call to a member function getRealOrderId() on null in vendor/magento/module-sales/Block/Order/PrintShipment.php:60»:
+# https://github.com/inkifi/site/issues/8
+!vendor/magento/module-sales/view/frontend/layout/sales_guest_print.xml
+!vendor/magento/module-sales/view/frontend/layout/sales_order_print.xml
 # 2019-01-05 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
 # «Improve MediaClip module for Magento 2: add USPS shipping tracking URLs to emails»
 # https://www.upwork.com/ab/f/contracts/21337553
