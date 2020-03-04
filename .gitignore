@@ -94,6 +94,10 @@
 # The file has been modified by someone at 2018-04-24.
 # It replaces the «URL key for specified store already exists.» message with `$e->getMessage()`.
 !vendor/magento/module-url-rewrite/Model/Storage/DbStorage.php
+# 2012-03-04 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «Unable to read response, or response is empty at vendor/magento/zendframework1/library/Zend/Http/Client.php:1093»:
+# https://github.com/inkifi/site/issues/11
+!vendor/magento/zendframework1/library/Zend/Http/Client.php
 dev
 vendor/codeception
 vendor/magento/framework/Test
