@@ -47,6 +47,9 @@
 # 	«Sign Up for Newsletter» → «Join our mailing list. Photo tips, exclusive offers and more.»
 !vendor/magento/module-customer/view/frontend/templates/form/register.phtml
 # 2012-03-04 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «This email address is already subscribed»: https://github.com/inkifi/site/issues/12
+!vendor/magento/module-newsletter/Controller/Subscriber/NewAction.php
+# 2012-03-04 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
 # «Wrong order ID: "". at vendor/magento/module-paypal/Model/Ipn.php:140»: https://github.com/inkifi/site/issues/9
 !vendor/magento/module-paypal/Model/Ipn.php
 # 2012-03-04 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
