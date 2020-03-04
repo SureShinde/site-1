@@ -25,6 +25,10 @@
 /update/
 !us/.htaccess
 !us/index.php
+# 2012-03-04 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
+# «Call to a member function getFieldValue() on boolean in vendor/magento/framework/App/PageCache/Kernel.php:137»:
+# https://github.com/inkifi/site/issues/10
+!vendor/magento/framework/App/PageCache/Kernel.php
 # 2020-03-01 Dmitry Fedyuk https://www.upwork.com/fl/mage2pro
 # Magento 2.2.1 bug on the frontend checkout page:
 # «session_destroy(): Session object destruction failed in Magento/Framework/Session/SessionManager.php on line 513»
